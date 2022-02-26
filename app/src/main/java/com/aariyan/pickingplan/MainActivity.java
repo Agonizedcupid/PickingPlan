@@ -32,9 +32,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //Instance variable of Constraint layout for SnackBar:
     private ConstraintLayout snackBarLayout;
 
-    //Instance of CompositeDisposable for running task in the background for better performance:
-    CompositeDisposable checkLogIn = new CompositeDisposable();
-
     private ProgressBar progressBar;
 
     @Override
@@ -73,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //Checking the log-In validation whether the entered data is correct or not:
     private void logInValidation() {
-
+        progressBar.setVisibility(View.VISIBLE);
         S_Preferences s_preferences = new S_Preferences(MainActivity.this);
         Constant.BASE_URL = s_preferences.getBaseUrl(Constant.SHARED_PREFERENCE_ROOT_NAME_FOR_BASE_URL);
 
@@ -84,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //if the pin is empty or no pin inputted by the use:
             enterCodeEdtText.setError("Please enter pin code to continue!");
             enterCodeEdtText.requestFocus();
+            progressBar.setVisibility(View.GONE);
             return;
         }
 
@@ -91,8 +89,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         networking.postLogInResponse(new LogInInterface() {
             @Override
             public void checkLogIn(List<AuthenticationModel> list) {
-                progressBar.setVisibility(View.VISIBLE);
-
                 if (list.size() > 0) {
                     Intent barcodeIntent = new Intent(MainActivity.this, BarcodeActivity.class);
                     barcodeIntent.putExtra("name", list.get(0).getPickingTeams());

@@ -50,4 +50,13 @@ dependencies {
 
     //Adapter factory to convert JSON
     implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0'
+
+    //barcode scanner:
+    //For API 24+
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+
+    //For API 19+
+    implementation('com.journeyapps:zxing-android-embedded:4.3.0') { transitive = false }
+    implementation 'com.google.zxing:core:3.3.0'
+
 }
