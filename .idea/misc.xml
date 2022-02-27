@@ -6,7 +6,9 @@
         <entry key="app/src/main/res/drawable/edit_text_background.xml" value="0.2225" />
         <entry key="app/src/main/res/layout/activity_barcode.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.35625" />
+        <entry key="app/src/main/res/layout/activity_plan.xml" value="0.340625" />
         <entry key="app/src/main/res/layout/activity_scanner.xml" value="0.2755208333333333" />
+        <entry key="app/src/main/res/layout/single_plan_layout.xml" value="0.340625" />
       </map>
     </option>
   </component>

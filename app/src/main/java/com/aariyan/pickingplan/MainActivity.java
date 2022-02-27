@@ -15,12 +15,10 @@ import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Database.S_Preferences;
 import com.aariyan.pickingplan.Interface.LogInInterface;
 import com.aariyan.pickingplan.Model.AuthenticationModel;
-import com.aariyan.pickingplan.Networking.LogInFeedback;
+import com.aariyan.pickingplan.Networking.NetworkingFeedback;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
-
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        LogInFeedback networking = new LogInFeedback(MainActivity.this);
+        NetworkingFeedback networking = new NetworkingFeedback(MainActivity.this);
         networking.postLogInResponse(new LogInInterface() {
             @Override
             public void checkLogIn(List<AuthenticationModel> list) {
