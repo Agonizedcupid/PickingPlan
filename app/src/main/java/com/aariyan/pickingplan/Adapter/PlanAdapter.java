@@ -35,26 +35,25 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         PlanModel model = list.get(position);
-        if (list.size() > 1) {
-            if (list.get(0).getStorename().equals(list.get(1).getStorename())) {
-                holder.view.setVisibility(View.GONE);
-            }
-            if (position != 0) {
-                if (list.get(position).getStorename().equals(list.get(position - 1).getStorename())) {
-                    check = false;
-                    holder.salesOrderNo.setVisibility(View.GONE);
-                    holder.storeName.setVisibility(View.GONE);
-                    holder.titleLayout.setVisibility(View.GONE);
-                    holder.view.setVisibility(View.GONE);
-                } else {
-                    check = true;
-                    holder.salesOrderNo.setVisibility(View.VISIBLE);
-                    holder.storeName.setVisibility(View.VISIBLE);
-                    holder.titleLayout.setVisibility(View.VISIBLE);
-                    holder.view.setVisibility(View.VISIBLE);
-                }
+
+        if (position == 0) {
+            holder.salesOrderNo.setVisibility(View.VISIBLE);
+            holder.storeName.setVisibility(View.VISIBLE);
+            holder.titleLayout.setVisibility(View.VISIBLE);
+        }
+
+        if (position > 0) {
+            if (list.get(position).getStorename().equals(list.get(position - 1).getStorename())) {
+                holder.salesOrderNo.setVisibility(View.GONE);
+                holder.storeName.setVisibility(View.GONE);
+                holder.titleLayout.setVisibility(View.GONE);
+            } else {
+                holder.salesOrderNo.setVisibility(View.VISIBLE);
+                holder.storeName.setVisibility(View.VISIBLE);
+                holder.titleLayout.setVisibility(View.VISIBLE);
             }
         }
+
         holder.storeName.setText(model.getStorename());
         holder.salesOrderNo.setText(model.getSalesOrderNo());
         holder.lineNo.setText("" + model.getLineNos());
