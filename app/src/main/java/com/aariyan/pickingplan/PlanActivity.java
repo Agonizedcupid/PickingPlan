@@ -43,7 +43,7 @@ public class PlanActivity extends AppCompatActivity {
             } else {
                 progressBar.setVisibility(View.VISIBLE);
                 loadPlan(qrCode);
-                referenceNo.setText("Reference: %s"+qrCode);
+                referenceNo.setText("Reference: "+qrCode);
             }
         }
     }
