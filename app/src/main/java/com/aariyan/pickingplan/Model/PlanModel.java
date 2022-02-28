@@ -8,8 +8,11 @@ public class PlanModel {
     private int LineNos;
     private String weights,OrderDate,Instruction,Area,Toinvoice;
 
+    private String toLoad,reference;
+
     public PlanModel(){}
 
+    //FOr RestAPIs
     public PlanModel(int intAutoPicking, String storename, String quantity, String itemCode, String description, String salesOrderNo, int orderId, String mass, int lineNos, String weights, String orderDate, String instruction, String area, String toinvoice) {
         this.intAutoPicking = intAutoPicking;
         Storename = storename;
@@ -25,6 +28,26 @@ public class PlanModel {
         Instruction = instruction;
         Area = area;
         Toinvoice = toinvoice;
+    }
+
+    //For SQLite
+    public PlanModel(int intAutoPicking, String storename, String quantity, String itemCode, String description, String salesOrderNo, int orderId, String mass, int lineNos, String weights, String orderDate, String instruction, String area, String toinvoice, String toLoad, String reference) {
+        this.intAutoPicking = intAutoPicking;
+        Storename = storename;
+        Quantity = quantity;
+        ItemCode = itemCode;
+        Description = description;
+        SalesOrderNo = salesOrderNo;
+        OrderId = orderId;
+        this.mass = mass;
+        LineNos = lineNos;
+        this.weights = weights;
+        OrderDate = orderDate;
+        Instruction = instruction;
+        Area = area;
+        Toinvoice = toinvoice;
+        this.toLoad = toLoad;
+        this.reference = reference;
     }
 
     public int getIntAutoPicking() {
@@ -137,5 +160,21 @@ public class PlanModel {
 
     public void setToinvoice(String toinvoice) {
         Toinvoice = toinvoice;
+    }
+
+    public String getToLoad() {
+        return toLoad;
+    }
+
+    public void setToLoad(String toLoad) {
+        this.toLoad = toLoad;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 }

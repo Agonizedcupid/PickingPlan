@@ -55,7 +55,7 @@ dependencies {
     //For API 24+
     implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
-    //For API 19+
+    //For API 19+ (Do not update this library)
     implementation('com.journeyapps:zxing-android-embedded:4.3.0') { transitive = false }
     implementation 'com.google.zxing:core:3.3.0'
 

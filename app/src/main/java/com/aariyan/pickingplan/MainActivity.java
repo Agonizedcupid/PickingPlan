@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        NetworkingFeedback networking = new NetworkingFeedback(MainActivity.this);
+        NetworkingFeedback networking = new NetworkingFeedback(MainActivity.this, MainActivity.this);
         networking.postLogInResponse(new LogInInterface() {
             @Override
             public void checkLogIn(List<AuthenticationModel> list) {

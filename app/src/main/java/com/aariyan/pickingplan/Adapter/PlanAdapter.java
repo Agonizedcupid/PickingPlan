@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aariyan.pickingplan.Interface.ToLoadClick;
 import com.aariyan.pickingplan.Model.PlanModel;
 import com.aariyan.pickingplan.R;
 
@@ -20,10 +21,12 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
     private Context context;
     private List<PlanModel> list;
     private boolean check = false;
+    ToLoadClick toLoadClick;
 
-    public PlanAdapter(Context context, List<PlanModel> list) {
+    public PlanAdapter(Context context, List<PlanModel> list, ToLoadClick toLoadClick) {
         this.context = context;
         this.list = list;
+        this.toLoadClick = toLoadClick;
     }
 
     @NonNull
@@ -60,7 +63,18 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
         holder.itemName.setText(model.getDescription());
         holder.qty.setText(model.getQuantity());
         holder.weight.setText(model.getWeights());
-        holder.toLoad.setText("0");
+//        if (list.contains("toLoad")) {
+//            holder.toLoad.setText(model.getToLoad());
+//        } else {
+//            holder.toLoad.setText("0");
+//        }
+        holder.toLoad.setText(model.getToLoad());
+        holder.toLoad.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toLoadClick.onClick(model);
+            }
+        });
     }
 
     @Override

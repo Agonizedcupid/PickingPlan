@@ -63,7 +63,7 @@ public class BarcodeActivity extends AppCompatActivity {
                 Intent intent = new Intent(BarcodeActivity.this, PlanActivity.class);
                 intent.putExtra("qrCode", code);
                 startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
     }
@@ -83,6 +83,7 @@ public class BarcodeActivity extends AppCompatActivity {
                     Log.d("MainActivity", "Scanned");
                     Toast.makeText(BarcodeActivity.this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
                     scannedCode.setText(result.getContents());
+                    Log.d("SCANNED_RESULT", ""+result.getContents());
                 }
             });
 
