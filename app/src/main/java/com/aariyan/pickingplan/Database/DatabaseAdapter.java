@@ -106,7 +106,7 @@ public class DatabaseAdapter {
     public long updatePlanToLoad(String itemName, String referenceCode, String quantity, String storeName, int lineNo) {
         SQLiteDatabase database = helper.getWritableDatabase();
         String selection = DatabaseHelper.Description + " LIKE ? AND " + DatabaseHelper.reference + " LIKE ? AND " +
-                DatabaseHelper.Storename + " LIKE ? AND " + DatabaseHelper.LineNos + "LIKE ?";
+                DatabaseHelper.Storename + " LIKE ? AND " + DatabaseHelper.LineNos + " LIKE ? ";
         String[] args = {itemName, referenceCode, storeName, "" + lineNo};
 
         ContentValues contentValues = new ContentValues();
