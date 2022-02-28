@@ -121,7 +121,7 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
                     return;
                 }
 
-                long id = databaseAdapter.updatePlanToLoad(model.getDescription(),qrCode,finalQuantity);
+                long id = databaseAdapter.updatePlanToLoad(model.getDescription(),qrCode,finalQuantity, model.getStorename(), model.getLineNos());
                 if (id > 0) {
                     Snackbar.make(snackBarLayout,"Updated To "+finalQuantity,Snackbar.LENGTH_SHORT).show();
                     loadPlan(qrCode);

@@ -1,6 +1,7 @@
 package com.aariyan.pickingplan.Adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,23 +40,23 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         PlanModel model = list.get(position);
 
-        if (position == 0) {
-            holder.salesOrderNo.setVisibility(View.VISIBLE);
-            holder.storeName.setVisibility(View.VISIBLE);
-            holder.titleLayout.setVisibility(View.VISIBLE);
-        }
-
-        if (position > 0) {
-            if (list.get(position).getStorename().equals(list.get(position - 1).getStorename())) {
-                holder.salesOrderNo.setVisibility(View.GONE);
-                holder.storeName.setVisibility(View.GONE);
-                holder.titleLayout.setVisibility(View.GONE);
-            } else {
-                holder.salesOrderNo.setVisibility(View.VISIBLE);
-                holder.storeName.setVisibility(View.VISIBLE);
-                holder.titleLayout.setVisibility(View.VISIBLE);
-            }
-        }
+//        if (position == 0) {
+//            holder.salesOrderNo.setVisibility(View.VISIBLE);
+//            holder.storeName.setVisibility(View.VISIBLE);
+//            holder.titleLayout.setVisibility(View.VISIBLE);
+//        }
+//
+//        if (position > 0) {
+//            if (list.get(position).getStorename().equals(list.get(position - 1).getStorename())) {
+//                holder.salesOrderNo.setVisibility(View.GONE);
+//                holder.storeName.setVisibility(View.GONE);
+//                holder.titleLayout.setVisibility(View.GONE);
+//            } else {
+//                holder.salesOrderNo.setVisibility(View.VISIBLE);
+//                holder.storeName.setVisibility(View.VISIBLE);
+//                holder.titleLayout.setVisibility(View.VISIBLE);
+//            }
+//        }
 
         holder.storeName.setText(model.getStorename());
         holder.salesOrderNo.setText(model.getSalesOrderNo());
@@ -68,13 +69,19 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
 //        } else {
 //            holder.toLoad.setText("0");
 //        }
-        holder.toLoad.setText(model.getToLoad());
+        if (TextUtils.isEmpty(model.getToLoad())) {
+            holder.toLoad.setText("0");
+        } else {
+            holder.toLoad.setText(model.getToLoad());
+        }
+
         holder.toLoad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 toLoadClick.onClick(model);
             }
         });
+
     }
 
     @Override

@@ -119,9 +119,10 @@ public class NetworkingFeedback {
                                 String Toinvoice = single.getString("Toinvoice");
 
                                 PlanModel model = new PlanModel(intAutoPicking, Storename, Quantity, ItemCode, Description,
-                                        SalesOrderNo, OrderId, mass, LineNos, weights, OrderDate, Instruction, Area, Toinvoice);
-                                model.setReference(qrCode);
-                                model.setToLoad("0");
+                                        SalesOrderNo, OrderId, mass, LineNos, weights, OrderDate, Instruction, Area, Toinvoice,
+                                        "0", qrCode);
+//                                model.setReference(qrCode);
+//                                model.setToLoad("0");
                                 listOfPlans.add(model);
                             }
                             getPLanInterface.gotPlan(listOfPlans);

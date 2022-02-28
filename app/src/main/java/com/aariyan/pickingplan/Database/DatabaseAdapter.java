@@ -71,7 +71,7 @@ public class DatabaseAdapter {
 
 
         String[] args = {reference};
-        String[] columns = {DatabaseHelper.UID,DatabaseHelper.intAutoPicking, DatabaseHelper.Storename, DatabaseHelper.Quantity,
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.intAutoPicking, DatabaseHelper.Storename, DatabaseHelper.Quantity,
                 DatabaseHelper.ItemCode, DatabaseHelper.Description, DatabaseHelper.SalesOrderNo, DatabaseHelper.OrderId,
                 DatabaseHelper.mass, DatabaseHelper.LineNos, DatabaseHelper.weights, DatabaseHelper.OrderDate,
                 DatabaseHelper.Instruction, DatabaseHelper.Area, DatabaseHelper.Toinvoice, DatabaseHelper.toLoad, DatabaseHelper.reference};
@@ -102,11 +102,12 @@ public class DatabaseAdapter {
     }
 
 
-   // Update Quantity by name and reference code:
-    public long updatePlanToLoad(String itemName, String referenceCode, String quantity) {
+    // Update Quantity by name and reference code:
+    public long updatePlanToLoad(String itemName, String referenceCode, String quantity, String storeName, int lineNo) {
         SQLiteDatabase database = helper.getWritableDatabase();
-        String selection = DatabaseHelper.Description + " LIKE ? AND " + DatabaseHelper.reference + " LIKE ? ";
-        String[] args = {itemName,referenceCode};
+        String selection = DatabaseHelper.Description + " LIKE ? AND " + DatabaseHelper.reference + " LIKE ? AND " +
+                DatabaseHelper.Storename + " LIKE ? AND " + DatabaseHelper.LineNos + "LIKE ?";
+        String[] args = {itemName, referenceCode, storeName, "" + lineNo};
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseHelper.toLoad, quantity);
@@ -236,7 +237,7 @@ public class DatabaseAdapter {
         private Context context;
 
         private static final String DATABASE_NAME = "picking_N_plan.db";
-        private static final int VERSION_NUMBER = 2;
+        private static final int VERSION_NUMBER = 5;
 
         //Header Table:
         private static final String PLAN_TABLE_NAME = "plans";
