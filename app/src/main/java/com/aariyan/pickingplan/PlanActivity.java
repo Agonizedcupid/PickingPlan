@@ -13,9 +13,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.aariyan.pickingplan.Adapter.PlanAdapter;
 import com.aariyan.pickingplan.Database.DatabaseAdapter;
+import com.aariyan.pickingplan.Filterable.Filter;
 import com.aariyan.pickingplan.Interface.GetPLanInterface;
 import com.aariyan.pickingplan.Interface.ToLoadClick;
 import com.aariyan.pickingplan.Model.PlanModel;
@@ -25,6 +27,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlanActivity extends AppCompatActivity implements ToLoadClick {
@@ -38,11 +41,12 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
     private ProgressBar progressBar;
     private TextView itemName;
     private EditText enteredQuantity;
-    private Button saveQuantityBtn;
+    private Button saveQuantityBtn, showRemainingBtn;
     private View bottomSheet;
     private BottomSheetBehavior behavior;
 
     DatabaseAdapter databaseAdapter;
+    List<PlanModel> filteredList = new ArrayList<>();
 
 
     @Override
@@ -89,6 +93,14 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
     }
 
     private void initUI() {
+        showRemainingBtn = findViewById(R.id.showRemainingBtn);
+        showRemainingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadFilteredData();
+            }
+        });
+
         snackBarLayout = findViewById(R.id.snackBarLayout);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -106,6 +118,31 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         planName.setText("Plan Name");
     }
 
+    private void loadFilteredData() {
+        NetworkingFeedback feedback = new NetworkingFeedback(PlanActivity.this, PlanActivity.this);
+        feedback.getPlan(new GetPLanInterface() {
+            @Override
+            public void gotPlan(List<PlanModel> listOfPlan) {
+                if (listOfPlan.size() > 0) {
+                    filteredList.clear();
+                    filteredList = new Filter(PlanActivity.this).getFilteredData(listOfPlan);
+                    adapter = new PlanAdapter(PlanActivity.this, filteredList, PlanActivity.this);
+                    recyclerView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Snackbar.make(snackBarLayout, "No data found!", Snackbar.LENGTH_SHORT).show();
+                }
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                Snackbar.make(snackBarLayout, "" + errorMessage, Snackbar.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+            }
+        }, qrCode, snackBarLayout);
+    }
+
     @Override
     public void onClick(PlanModel model) {
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -121,12 +158,12 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
                     return;
                 }
 
-                long id = databaseAdapter.updatePlanToLoad(model.getDescription(),qrCode,finalQuantity, model.getStorename(), model.getLineNos());
+                long id = databaseAdapter.updatePlanToLoad(model.getDescription(), qrCode, finalQuantity, model.getStorename(), model.getLineNos());
                 if (id > 0) {
-                    Snackbar.make(snackBarLayout,"Updated To "+finalQuantity,Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(snackBarLayout, "Updated To " + finalQuantity, Snackbar.LENGTH_SHORT).show();
                     loadPlan(qrCode);
                 } else {
-                    Snackbar.make(snackBarLayout,"Failed to update",Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(snackBarLayout, "Failed to update", Snackbar.LENGTH_SHORT).show();
                 }
 
                 behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
