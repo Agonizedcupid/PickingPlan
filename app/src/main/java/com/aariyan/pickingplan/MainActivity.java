@@ -2,20 +2,28 @@ package com.aariyan.pickingplan;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Database.S_Preferences;
 import com.aariyan.pickingplan.Interface.LogInInterface;
 import com.aariyan.pickingplan.Model.AuthenticationModel;
 import com.aariyan.pickingplan.Networking.NetworkingFeedback;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
@@ -28,14 +36,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText enterCodeEdtText;
 
     //Instance variable of Constraint layout for SnackBar:
-    private ConstraintLayout snackBarLayout;
+    private CoordinatorLayout snackBarLayout;
 
     private ProgressBar progressBar;
+
+    private FloatingActionButton closeApp;
+
+    private EditText ipField, userId;
+    private Button saveBtn, exitBtn;
+
+    private View ipBottomSheet;
+    BottomSheetBehavior ipBehavior;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Constant.BASE_URL = getURL();
 
         //Instantiate UI variables
         initUI();
@@ -54,6 +71,93 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //instantiating the onClick for button listener, later we will implement the interface for triggering:
         logInBtn.setOnClickListener(this);
+
+        saveBtn = findViewById(R.id.saveBtn);
+        exitBtn = findViewById(R.id.exitBtn);
+
+        ipField = findViewById(R.id.ipField);
+
+        closeApp = findViewById(R.id.closeTheApp);
+
+        ipBottomSheet = findViewById(R.id.bottomSheetForIp);
+        ipBehavior = BottomSheetBehavior.from(ipBottomSheet);
+
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (ipField.getText().toString().endsWith("/")) {
+                    ipBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    S_Preferences sharedPreferences = new S_Preferences(MainActivity.this);
+                    sharedPreferences.saveBaserUrl(ipField.getText().toString(), "root");
+
+                    Toast.makeText(MainActivity.this, "Saved", Toast.LENGTH_SHORT).show();
+                    Constant.BASE_URL = getURL();
+                } else {
+                    Toast.makeText(MainActivity.this, "Ip should end with a / (Forward slash)", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        exitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ipBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        });
+
+        closeApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAlertDialog();
+            }
+        });
+    }
+
+    private void showAlertDialog() {
+        Dialog dialog = new Dialog(MainActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.app_close_dialog, null);
+        TextView setUps = view.findViewById(R.id.setUps);
+        TextView yes = view.findViewById(R.id.yes);
+        TextView no = view.findViewById(R.id.no);
+
+        setUps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+
+                //saving the value on shared preference:
+                ipBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+                ipField.setText(getURL(), TextView.BufferType.EDITABLE);
+            }
+        });
+
+        yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                System.exit(0);
+            }
+        });
+
+        no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    public String getURL() {
+        S_Preferences sharedPreferences = new S_Preferences(MainActivity.this);
+        return sharedPreferences.getBaseUrl("root");
     }
 
     @Override
