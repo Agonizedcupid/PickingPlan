@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,8 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
 
     DatabaseAdapter databaseAdapter;
     List<PlanModel> filteredList = new ArrayList<>();
+
+    private RadioButton allBtn, loadedBtn, remainingBtn;
 
 
     @Override
@@ -93,11 +96,45 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
     }
 
     private void initUI() {
-        showRemainingBtn = findViewById(R.id.showRemainingBtn);
-        showRemainingBtn.setOnClickListener(new View.OnClickListener() {
+//        showRemainingBtn = findViewById(R.id.showRemainingBtn);
+//        showRemainingBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                loadFilteredData();
+//            }
+//        });
+
+        allBtn = findViewById(R.id.allRadioBtn);
+        remainingBtn = findViewById(R.id.remainingRadioBtn);
+        loadedBtn = findViewById(R.id.loadedRadioBtn);
+
+        allBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadFilteredData();
+                loadPlan(qrCode);
+                allBtn.setChecked(true);
+                remainingBtn.setChecked(false);
+                loadedBtn.setChecked(false);
+            }
+        });
+
+        remainingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadFilteredData(1);
+                allBtn.setChecked(false);
+                remainingBtn.setChecked(true);
+                loadedBtn.setChecked(false);
+            }
+        });
+
+        loadedBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadFilteredData(0);
+                allBtn.setChecked(false);
+                remainingBtn.setChecked(false);
+                loadedBtn.setChecked(true);
             }
         });
 
@@ -118,14 +155,24 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         planName.setText("Plan Name");
     }
 
-    private void loadFilteredData() {
+    private void loadFilteredData(int flag) {
         NetworkingFeedback feedback = new NetworkingFeedback(PlanActivity.this, PlanActivity.this);
         feedback.getPlan(new GetPLanInterface() {
             @Override
             public void gotPlan(List<PlanModel> listOfPlan) {
                 if (listOfPlan.size() > 0) {
+//                    if (flag == 0) {
+//                        filteredList.clear();
+//                        filteredList = new Filter(PlanActivity.this).getFilteredForLoaded(listOfPlan);
+//                        Toast.makeText(PlanActivity.this, listOfPlan.size()+"->"+filteredList.size(), Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        filteredList.clear();
+//                        filteredList = new Filter(PlanActivity.this).getFilteredForRemaining(listOfPlan);
+//                    }
+
                     filteredList.clear();
-                    filteredList = new Filter(PlanActivity.this).getFilteredData(listOfPlan);
+                    filteredList = new Filter(PlanActivity.this).getFilteredData(listOfPlan, flag);
+
                     adapter = new PlanAdapter(PlanActivity.this, filteredList, PlanActivity.this);
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();

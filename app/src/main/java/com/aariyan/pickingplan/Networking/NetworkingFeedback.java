@@ -153,7 +153,7 @@ public class NetworkingFeedback {
                 long id = databaseAdapter.insertPlans(model.getIntAutoPicking(), model.getStorename(), model.getQuantity(),
                         model.getItemCode(), model.getDescription(), model.getSalesOrderNo(), model.getOrderId(),
                         model.getMass(), model.getLineNos(), model.getWeights(), model.getOrderDate(), model.getInstruction(),
-                        model.getArea(), model.getToinvoice(), "", reference);
+                        model.getArea(), model.getToinvoice(), model.getToLoad(), reference);
             }
 
             @Override

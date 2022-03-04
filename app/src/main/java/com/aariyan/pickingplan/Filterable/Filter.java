@@ -23,9 +23,23 @@ public class Filter {
         this.context = context;
     }
 
-    public List<PlanModel> getFilteredData(List<PlanModel> listOfPlans) {
+    public List<PlanModel> getFilteredData(List<PlanModel> listOfPlans, int flag) {
         List<PlanModel> list = new ArrayList<>();
-        Observable<PlanModel> observable = Observable.fromIterable(listOfPlans).filter(planModel -> planModel.getToLoad().equals("0") || TextUtils.isEmpty(planModel.getToLoad()));
+        //Observable<PlanModel> observable = Observable.fromIterable(listOfPlans).filter(planModel -> planModel.getToLoad().equals("0") || TextUtils.isEmpty(planModel.getToLoad()));
+        Observable<PlanModel> observable = Observable.
+                fromIterable(listOfPlans)
+                .filter(new Predicate<PlanModel>() {
+                    @Override
+                    public boolean test(PlanModel planModel) throws Throwable {
+                        if (flag == 1) {
+                            //Remaining
+                            return planModel.getToLoad().equals("0") || TextUtils.isEmpty(planModel.getToLoad());
+                        } else {
+                            //Loaded
+                            return Integer.parseInt(planModel.getToLoad()) > 0;
+                        }
+                    }
+                });
 
         Observer observer = new Observer() {
             @Override
