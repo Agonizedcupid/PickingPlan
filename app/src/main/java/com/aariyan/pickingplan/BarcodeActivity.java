@@ -62,6 +62,7 @@ public class BarcodeActivity extends AppCompatActivity {
                 }
                 Intent intent = new Intent(BarcodeActivity.this, PlanActivity.class);
                 intent.putExtra("qrCode", code);
+                intent.putExtra("userId", getIntent().getIntExtra("userId",1));
                 startActivity(intent);
                 //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }

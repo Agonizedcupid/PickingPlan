@@ -111,7 +111,11 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(PlanActivity.this, UploadActivity.class));
+                startActivity(new Intent(PlanActivity.this, UploadActivity.class)
+                        .putExtra("code", qrCode)
+                        .putExtra("code", qrCode)
+                        .putExtra("userId", getIntent().getIntExtra("userId",1))
+                );
             }
         });
 

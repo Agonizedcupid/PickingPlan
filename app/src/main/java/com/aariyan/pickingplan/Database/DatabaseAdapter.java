@@ -117,7 +117,6 @@ public class DatabaseAdapter {
         return ids;
     }
 
-
 //    //Getting all the user
 //    public List<UserListModel> getUserData() {
 //

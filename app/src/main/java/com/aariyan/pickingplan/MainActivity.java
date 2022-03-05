@@ -194,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (list.size() > 0) {
                     Intent barcodeIntent = new Intent(MainActivity.this, BarcodeActivity.class);
                     barcodeIntent.putExtra("name", list.get(0).getPickingTeams());
+                    barcodeIntent.putExtra("userId", list.get(0).getUserID());
                     startActivity(barcodeIntent);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 } else {

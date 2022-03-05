@@ -2,6 +2,7 @@ package com.aariyan.pickingplan.Networking;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -13,6 +14,7 @@ import com.aariyan.pickingplan.Interface.LogInInterface;
 import com.aariyan.pickingplan.Interface.RestApis;
 import com.aariyan.pickingplan.Model.AuthenticationModel;
 import com.aariyan.pickingplan.Model.PlanModel;
+import com.aariyan.pickingplan.Model.PostModel;
 import com.aariyan.pickingplan.R;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -140,11 +142,11 @@ public class NetworkingFeedback {
     //Insert into SQLite database:
     private void insertIntoSqliteDatabase(List<PlanModel> listOfPlans, String reference, CoordinatorLayout snackBarLayout) {
 
-        Observable<PlanModel> observable = Observable.fromIterable(listOfPlans);
+        Observable<PlanModel> observable = Observable.fromIterable(listOfPlans)
+                .subscribeOn(Schedulers.io());
         Observer observer = new Observer() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
-
             }
 
             @Override
@@ -164,6 +166,55 @@ public class NetworkingFeedback {
             @Override
             public void onComplete() {
                 Snackbar.make(snackBarLayout, "Saved on local storage", Snackbar.LENGTH_SHORT).show();
+            }
+        };
+        observable.subscribe(observer);
+    }
+
+    //Post on server database:
+    public void postDataOnServer(List<PostModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
+
+        Observable<PostModel> observable = Observable.fromIterable(listOfPostData)
+                .subscribeOn(Schedulers.io());
+        Observer observer = new Observer() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+//                if (d.isDisposed()) {
+//                    Snackbar.make(snackBarLayout, "Data uploaded successfully!", Snackbar.LENGTH_SHORT).show();
+//                }
+            }
+
+            @Override
+            public void onNext(Object o) {
+                PostModel model = (PostModel) o;
+                compositeDisposable.add(apis
+                        .postPickedQty(model.getPickingId(),
+                                Integer.parseInt(model.getQuantity()),
+                                userId)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(new Consumer<ResponseBody>() {
+                            @Override
+                            public void accept(ResponseBody responseBody) throws Throwable {
+                                //JSONArray data = new JSONArray(responseBody.string());
+                                Snackbar.make(snackBarLayout, "Data is uploading", Snackbar.LENGTH_SHORT).show();
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Throwable {
+                                Log.d("ERROR_TESTING", throwable.getMessage());
+                                Snackbar.make(snackBarLayout, "Error: " + throwable.getMessage(), Snackbar.LENGTH_SHORT).show();
+                            }
+                        }));
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Snackbar.make(snackBarLayout, "Error: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onComplete() {
+                Snackbar.make(snackBarLayout, "Data posted successfully", Snackbar.LENGTH_SHORT).show();
             }
         };
         observable.subscribe(observer);

@@ -2,9 +2,11 @@ package com.aariyan.pickingplan.Filterable;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.aariyan.pickingplan.Model.PlanModel;
+import com.aariyan.pickingplan.Model.PostModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Predicate;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class Filter {
 
@@ -50,6 +53,44 @@ public class Filter {
             @Override
             public void onNext(Object o) {
                 list.add((PlanModel) o);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        };
+        observable.subscribe(observer);
+        return list;
+    }
+
+    public List<PostModel> getPostData(List<PlanModel> listOfPlans) {
+        List<PostModel> list = new ArrayList<>();
+        Observable<PlanModel> observable = Observable.fromIterable(listOfPlans)
+                .filter(planModel -> Integer.parseInt(planModel.getToLoad()) > 0 || !TextUtils.isEmpty(planModel.getToLoad()))
+                .subscribeOn(Schedulers.io());
+
+
+        Observer observer = new Observer() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(Object o) {
+                PlanModel model = (PlanModel) o;
+                Log.d("QUANTITY_TESTING", "onNext: "+model.getQuantity());
+                PostModel postModel = new PostModel(
+                        model.getIntAutoPicking(), model.getDescription(), model.getToLoad()
+                );
+
+                list.add(postModel);
             }
 
             @Override
