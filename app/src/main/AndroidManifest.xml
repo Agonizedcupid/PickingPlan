@@ -13,6 +13,9 @@
         android:theme="@style/Theme.PickingPlan"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".UploadActivity"
+            android:exported="false" />
+        <activity
             android:name=".PlanActivity"
             android:exported="false" />
         <activity

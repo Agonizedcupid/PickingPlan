@@ -6,6 +6,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -50,6 +51,8 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
     List<PlanModel> filteredList = new ArrayList<>();
 
     private RadioButton allBtn, loadedBtn, remainingBtn;
+
+    private Button submitBtn;
 
 
     @Override
@@ -103,6 +106,14 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
 //                loadFilteredData();
 //            }
 //        });
+
+        submitBtn = findViewById(R.id.submitBtn);
+        submitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(PlanActivity.this, UploadActivity.class));
+            }
+        });
 
         allBtn = findViewById(R.id.allRadioBtn);
         remainingBtn = findViewById(R.id.remainingRadioBtn);

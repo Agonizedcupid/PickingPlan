@@ -16,4 +16,9 @@ public interface RestApis {
 
     @GET("GetPlan.php?")
     Observable<ResponseBody> getPlan(@Query("ref") String qrCode);
+
+    @FormUrlEncoded
+    @POST("PostPickedQty.php")
+    Observable<ResponseBody> postPickedQty(@Field("intPickingId") String itemId, @Field("Qty'") String quantity,
+                                           @Field("userId") int userId);
 }
