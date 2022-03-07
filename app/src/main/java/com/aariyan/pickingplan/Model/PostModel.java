@@ -4,12 +4,23 @@ public class PostModel {
     private int pickingId;
     private String itemName,quantity;
 
+    private int lineNo;
+
     public PostModel(){}
 
-    public PostModel(int pickingId, String itemName, String quantity) {
+    public PostModel(int pickingId, String itemName, String quantity, int lineNo) {
         this.pickingId = pickingId;
         this.itemName = itemName;
         this.quantity = quantity;
+        this.lineNo = lineNo;
+    }
+
+    public int getLineNo() {
+        return lineNo;
+    }
+
+    public void setLineNo(int lineNo) {
+        this.lineNo = lineNo;
     }
 
     public int getPickingId() {

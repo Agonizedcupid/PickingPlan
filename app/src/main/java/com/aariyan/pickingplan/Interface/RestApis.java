@@ -19,6 +19,6 @@ public interface RestApis {
 
     @FormUrlEncoded
     @POST("PostPickedQty.php")
-    Observable<ResponseBody> postPickedQty(@Field("intPickingId") int itemId, @Field("Qty'") int quantity,
+    Observable<ResponseBody> postPickedQty(@Field("intPickingId") int itemId, @Field("Qty") int quantity,
                                            @Field("userId") int userId);
 }

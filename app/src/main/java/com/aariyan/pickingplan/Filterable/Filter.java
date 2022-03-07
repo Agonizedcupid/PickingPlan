@@ -69,10 +69,14 @@ public class Filter {
         return list;
     }
 
-    public List<PostModel> getPostData(List<PlanModel> listOfPlans) {
-        List<PostModel> list = new ArrayList<>();
+    public List<PlanModel> getPostData(List<PlanModel> listOfPlans) {
+        List<PlanModel> list = new ArrayList<>();
+//        Observable<PlanModel> observable = Observable.fromIterable(listOfPlans)
+//                .filter(planModel -> Integer.parseInt(planModel.getToLoad()) > 0 || !TextUtils.isEmpty(planModel.getToLoad()))
+//                .subscribeOn(Schedulers.io());
+
         Observable<PlanModel> observable = Observable.fromIterable(listOfPlans)
-                .filter(planModel -> Integer.parseInt(planModel.getToLoad()) > 0 || !TextUtils.isEmpty(planModel.getToLoad()))
+                .filter(planModel -> planModel.getFlag() != 0)
                 .subscribeOn(Schedulers.io());
 
 
@@ -85,12 +89,12 @@ public class Filter {
             @Override
             public void onNext(Object o) {
                 PlanModel model = (PlanModel) o;
-                Log.d("QUANTITY_TESTING", "onNext: "+model.getQuantity());
-                PostModel postModel = new PostModel(
-                        model.getIntAutoPicking(), model.getDescription(), model.getToLoad()
-                );
+//                Log.d("QUANTITY_TESTING", "onNext: " + model.getQuantity());
+//                PostModel postModel = new PostModel(
+//                        model.getIntAutoPicking(), model.getDescription(), model.getToLoad(), model.getLineNos()
+//                );
 
-                list.add(postModel);
+                list.add(model);
             }
 
             @Override

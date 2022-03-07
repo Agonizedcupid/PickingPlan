@@ -10,6 +10,8 @@ public class PlanModel {
 
     private String toLoad,reference;
 
+    private int flag;
+
     public PlanModel(){}
 
     //FOr RestAPIs
@@ -31,7 +33,7 @@ public class PlanModel {
     }
 
     //For SQLite
-    public PlanModel(int intAutoPicking, String storename, String quantity, String itemCode, String description, String salesOrderNo, int orderId, String mass, int lineNos, String weights, String orderDate, String instruction, String area, String toinvoice, String toLoad, String reference) {
+    public PlanModel(int intAutoPicking, String storename, String quantity, String itemCode, String description, String salesOrderNo, int orderId, String mass, int lineNos, String weights, String orderDate, String instruction, String area, String toinvoice, String toLoad,int flag, String reference) {
         this.intAutoPicking = intAutoPicking;
         Storename = storename;
         Quantity = quantity;
@@ -48,6 +50,15 @@ public class PlanModel {
         Toinvoice = toinvoice;
         this.toLoad = toLoad;
         this.reference = reference;
+        this.flag = flag;
+    }
+
+    public int getFlag() {
+        return flag;
+    }
+
+    public void setFlag(int flag) {
+        this.flag = flag;
     }
 
     public int getIntAutoPicking() {

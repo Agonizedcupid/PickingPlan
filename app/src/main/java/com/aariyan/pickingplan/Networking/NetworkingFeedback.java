@@ -122,7 +122,7 @@ public class NetworkingFeedback {
 
                                 PlanModel model = new PlanModel(intAutoPicking, Storename, Quantity, ItemCode, Description,
                                         SalesOrderNo, OrderId, mass, LineNos, weights, OrderDate, Instruction, Area, Toinvoice,
-                                        "0", qrCode);
+                                        "0", 1, qrCode);
 //                                model.setReference(qrCode);
 //                                model.setToLoad("0");
                                 listOfPlans.add(model);
@@ -172,9 +172,10 @@ public class NetworkingFeedback {
     }
 
     //Post on server database:
-    public void postDataOnServer(List<PostModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
+   // public void postDataOnServer(List<PostModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
+    public void postDataOnServer(List<PlanModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
 
-        Observable<PostModel> observable = Observable.fromIterable(listOfPostData)
+        Observable<PlanModel> observable = Observable.fromIterable(listOfPostData)
                 .subscribeOn(Schedulers.io());
         Observer observer = new Observer() {
             @Override
@@ -186,17 +187,35 @@ public class NetworkingFeedback {
 
             @Override
             public void onNext(Object o) {
-                PostModel model = (PostModel) o;
+                PlanModel model = (PlanModel) o;
                 compositeDisposable.add(apis
-                        .postPickedQty(model.getPickingId(),
-                                Integer.parseInt(model.getQuantity()),
+                        .postPickedQty(model.getIntAutoPicking(),
+                                Integer.parseInt(model.getToLoad()),
                                 userId)
                         .subscribeOn(Schedulers.io())
                         .subscribe(new Consumer<ResponseBody>() {
                             @Override
                             public void accept(ResponseBody responseBody) throws Throwable {
+                                //Log.d("UPLOAD_STATUS", responseBody.string());
                                 //JSONArray data = new JSONArray(responseBody.string());
-                                Snackbar.make(snackBarLayout, "Data is uploading", Snackbar.LENGTH_SHORT).show();
+                                try {
+                                    JSONArray root = new JSONArray(responseBody.string());
+                                    if (root.length() > 0) {
+                                        for (int i = 0; i < root.length(); i++) {
+                                            JSONObject single = root.getJSONObject(i);
+                                            String toLoad = single.getString("toLoad");
+                                            String result = single.getString("result");
+                                            Snackbar.make(snackBarLayout, "Data is uploading (" + result + ")", Snackbar.LENGTH_SHORT).show();
+                                            Log.d("UPLOAD_STATUS", "toLoad: " + toLoad + " InModel: " + model.getToLoad());
+                                            databaseAdapter.updatePlanByLine(model.getLineNos(), 0);
+                                        }
+                                    }
+
+                                } catch (Exception e) {
+                                    Snackbar.make(snackBarLayout, "ERROR: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
+                                    Log.d("UPLOAD_STATUS", "ERROR: " + e.getMessage());
+                                }
+
                             }
                         }, new Consumer<Throwable>() {
                             @Override

@@ -8,10 +8,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.aariyan.pickingplan.Adapter.PostAdapter;
 import com.aariyan.pickingplan.Database.DatabaseAdapter;
 import com.aariyan.pickingplan.Filterable.Filter;
+import com.aariyan.pickingplan.Model.PlanModel;
 import com.aariyan.pickingplan.Model.PostModel;
 import com.aariyan.pickingplan.Networking.NetworkingFeedback;
 import com.google.android.material.snackbar.Snackbar;
@@ -24,7 +26,8 @@ public class UploadActivity extends AppCompatActivity {
     private DatabaseAdapter databaseAdapter;
     private String referenceCode;
     private Filter filter;
-    private List<PostModel> listOfPostData = new ArrayList<>();
+    //private List<PostModel> listOfPostData = new ArrayList<>();
+    private List<PlanModel> listOfPostData = new ArrayList<>();
     private RecyclerView recyclerView;
     private Button submitBtn;
     private PostAdapter adapter;
@@ -52,9 +55,19 @@ public class UploadActivity extends AppCompatActivity {
     private void loadData() {
         listOfPostData.clear();
         listOfPostData = filter.getPostData(databaseAdapter.getPlansByReference(referenceCode));
+        //Toast.makeText(this, ""+listOfPostData.size(), Toast.LENGTH_SHORT).show();
+
         adapter = new PostAdapter(this, listOfPostData);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+//        if (listOfPostData.size() > 0) {
+//            adapter = new PostAdapter(this, listOfPostData);
+//            recyclerView.setAdapter(adapter);
+//            adapter.notifyDataSetChanged();
+//        } else {
+//            Snackbar.make(snackBarLayout, "Not enough data!", Snackbar.LENGTH_SHORT).show();
+//        }
+
     }
 
     private void initUI() {
