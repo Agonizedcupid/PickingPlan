@@ -31,6 +31,8 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PlanActivity extends AppCompatActivity implements ToLoadClick {
 
@@ -54,6 +56,8 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
 
     private Button submitBtn;
 
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,18 +65,28 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         setContentView(R.layout.activity_plan);
         databaseAdapter = new DatabaseAdapter(PlanActivity.this);
 
-        initUI();
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                initUI();
 
-        if (getIntent() != null) {
-            qrCode = getIntent().getStringExtra("qrCode");
-            if (qrCode.equals("")) {
-                Snackbar.make(snackBarLayout, "You didn't scan anything!", Snackbar.LENGTH_SHORT).show();
-            } else {
-                progressBar.setVisibility(View.VISIBLE);
-                loadPlan(qrCode);
-                referenceNo.setText("Reference: " + qrCode);
+                if (getIntent() != null) {
+                    qrCode = getIntent().getStringExtra("qrCode");
+                    if (qrCode.equals("")) {
+                        Snackbar.make(snackBarLayout, "You didn't scan anything!", Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        progressBar.setVisibility(View.VISIBLE);
+                        loadPlan(qrCode);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                referenceNo.setText("Reference: " + qrCode);
+                            }
+                        });
+                    }
+                }
             }
-        }
+        });
     }
 
     private void loadPlan(String qrCode) {
@@ -81,19 +95,32 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
             @Override
             public void gotPlan(List<PlanModel> listOfPlan) {
                 if (listOfPlan.size() > 0) {
+
                     adapter = new PlanAdapter(PlanActivity.this, listOfPlan, PlanActivity.this);
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                 } else {
                     Snackbar.make(snackBarLayout, "No data found!", Snackbar.LENGTH_SHORT).show();
                 }
-                progressBar.setVisibility(View.GONE);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Toast.makeText(PlanActivity.this, ""+listOfPlan.size(), Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+
             }
 
             @Override
             public void error(String errorMessage) {
                 Snackbar.make(snackBarLayout, "" + errorMessage, Snackbar.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
             }
         }, qrCode, snackBarLayout);
     }

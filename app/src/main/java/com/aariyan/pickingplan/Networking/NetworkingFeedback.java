@@ -3,6 +3,7 @@ package com.aariyan.pickingplan.Networking;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -84,16 +85,11 @@ public class NetworkingFeedback {
 
     public void getPlan(GetPLanInterface getPLanInterface, String qrCode, CoordinatorLayout snackBarLayout) {
         listOfPlans.clear();
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                listOfPlans = databaseAdapter.getPlansByReference(qrCode);
-            }
-        });
+        listOfPlans = databaseAdapter.getPlansByReference(qrCode);
         if (listOfPlans.size() > 0) {
             getPLanInterface.gotPlan(listOfPlans);
             Snackbar.make(snackBarLayout, "Data showing from local storage", Snackbar.LENGTH_SHORT).show();
-
+            //printToast(Thread.currentThread().getName());
         } else {
             compositeDisposable.add(apis.getPlan(qrCode)
                     .subscribeOn(Schedulers.io())
@@ -237,5 +233,14 @@ public class NetworkingFeedback {
             }
         };
         observable.subscribe(observer);
+    }
+
+    private void printToast(String message){
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, ""+message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

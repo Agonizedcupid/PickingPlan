@@ -143,7 +143,7 @@ public class DatabaseAdapter {
         private Context context;
 
         private static final String DATABASE_NAME = "picking_N_plan.db";
-        private static final int VERSION_NUMBER = 6;
+        private static final int VERSION_NUMBER = 7;
 
         //Header Table:
         private static final String PLAN_TABLE_NAME = "plans";
