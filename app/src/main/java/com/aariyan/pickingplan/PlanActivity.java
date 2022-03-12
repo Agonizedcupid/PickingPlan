@@ -1,11 +1,13 @@
 package com.aariyan.pickingplan;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -65,28 +67,22 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         setContentView(R.layout.activity_plan);
         databaseAdapter = new DatabaseAdapter(PlanActivity.this);
 
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                initUI();
+        initUI();
 
-                if (getIntent() != null) {
-                    qrCode = getIntent().getStringExtra("qrCode");
-                    if (qrCode.equals("")) {
-                        Snackbar.make(snackBarLayout, "You didn't scan anything!", Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        progressBar.setVisibility(View.VISIBLE);
-                        loadPlan(qrCode);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                referenceNo.setText("Reference: " + qrCode);
-                            }
-                        });
-                    }
-                }
+        if (getIntent() != null) {
+            qrCode = getIntent().getStringExtra("qrCode");
+            progressBar.setVisibility(View.VISIBLE);
+            if (qrCode.equals("nothing")) {
+                loadPlan(qrCode);
+                //Snackbar.make(snackBarLayout, "You didn't scan anything!", Snackbar.LENGTH_SHORT).show();
+            } else {
+                //progressBar.setVisibility(View.VISIBLE);
+                //Drop the table before getting the data:
+                databaseAdapter.dropPlanTable();
+                loadPlan(qrCode);
+                referenceNo.setText("Reference: " + qrCode);
             }
-        });
+        }
     }
 
     private void loadPlan(String qrCode) {
@@ -95,34 +91,45 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
             @Override
             public void gotPlan(List<PlanModel> listOfPlan) {
                 if (listOfPlan.size() > 0) {
-
                     adapter = new PlanAdapter(PlanActivity.this, listOfPlan, PlanActivity.this);
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
+                    referenceNo.setText("Reference: " + listOfPlan.get(0).getReference());
                 } else {
                     Snackbar.make(snackBarLayout, "No data found!", Snackbar.LENGTH_SHORT).show();
+                    //Toast.makeText(PlanActivity.this, "No Data found!", Toast.LENGTH_SHORT).show();
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Toast.makeText(PlanActivity.this, ""+listOfPlan.size(), Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
-
+                progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void error(String errorMessage) {
                 Snackbar.make(snackBarLayout, "" + errorMessage, Snackbar.LENGTH_SHORT).show();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
+                progressBar.setVisibility(View.GONE);
             }
         }, qrCode, snackBarLayout);
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog alertDialog = new AlertDialog.Builder(PlanActivity.this).create();
+        alertDialog.setTitle("Alert Message");
+        alertDialog.setMessage("Are you sure you want to return to the main page?");
+        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+
+        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
     }
 
     private void initUI() {
@@ -141,7 +148,7 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
                 startActivity(new Intent(PlanActivity.this, UploadActivity.class)
                         .putExtra("code", qrCode)
                         .putExtra("code", qrCode)
-                        .putExtra("userId", getIntent().getIntExtra("userId",1))
+                        .putExtra("userId", getIntent().getIntExtra("userId", 1))
                 );
             }
         });
@@ -153,7 +160,7 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         allBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadPlan(qrCode);
+                loadPlan("nothing");
                 allBtn.setChecked(true);
                 remainingBtn.setChecked(false);
                 loadedBtn.setChecked(false);
@@ -197,39 +204,49 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         planName.setText("Plan Name");
     }
 
+//    private void loadFilteredData(int flag) {
+//        NetworkingFeedback feedback = new NetworkingFeedback(PlanActivity.this, PlanActivity.this);
+//        feedback.getPlan(new GetPLanInterface() {
+//            @Override
+//            public void gotPlan(List<PlanModel> listOfPlan) {
+//                if (listOfPlan.size() > 0) {
+////                    if (flag == 0) {
+////                        filteredList.clear();
+////                        filteredList = new Filter(PlanActivity.this).getFilteredForLoaded(listOfPlan);
+////                        Toast.makeText(PlanActivity.this, listOfPlan.size()+"->"+filteredList.size(), Toast.LENGTH_SHORT).show();
+////                    } else {
+////                        filteredList.clear();
+////                        filteredList = new Filter(PlanActivity.this).getFilteredForRemaining(listOfPlan);
+////                    }
+//
+//                    filteredList.clear();
+//                    filteredList = new Filter(PlanActivity.this).getFilteredData(listOfPlan, flag);
+//
+//                    adapter = new PlanAdapter(PlanActivity.this, filteredList, PlanActivity.this);
+//                    recyclerView.setAdapter(adapter);
+//                    adapter.notifyDataSetChanged();
+//                } else {
+//                    Snackbar.make(snackBarLayout, "No data found!", Snackbar.LENGTH_SHORT).show();
+//                }
+//                progressBar.setVisibility(View.GONE);
+//            }
+//
+//            @Override
+//            public void error(String errorMessage) {
+//                Snackbar.make(snackBarLayout, "" + errorMessage, Snackbar.LENGTH_SHORT).show();
+//                progressBar.setVisibility(View.GONE);
+//            }
+//        }, qrCode, snackBarLayout);
+//    }
+
     private void loadFilteredData(int flag) {
-        NetworkingFeedback feedback = new NetworkingFeedback(PlanActivity.this, PlanActivity.this);
-        feedback.getPlan(new GetPLanInterface() {
-            @Override
-            public void gotPlan(List<PlanModel> listOfPlan) {
-                if (listOfPlan.size() > 0) {
-//                    if (flag == 0) {
-//                        filteredList.clear();
-//                        filteredList = new Filter(PlanActivity.this).getFilteredForLoaded(listOfPlan);
-//                        Toast.makeText(PlanActivity.this, listOfPlan.size()+"->"+filteredList.size(), Toast.LENGTH_SHORT).show();
-//                    } else {
-//                        filteredList.clear();
-//                        filteredList = new Filter(PlanActivity.this).getFilteredForRemaining(listOfPlan);
-//                    }
+        filteredList.clear();
+        List<PlanModel> list = new NetworkingFeedback(PlanActivity.this, PlanActivity.this).getPlanForFilter();
+        filteredList = new Filter(PlanActivity.this).getFilteredData(list, flag);
 
-                    filteredList.clear();
-                    filteredList = new Filter(PlanActivity.this).getFilteredData(listOfPlan, flag);
-
-                    adapter = new PlanAdapter(PlanActivity.this, filteredList, PlanActivity.this);
-                    recyclerView.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                } else {
-                    Snackbar.make(snackBarLayout, "No data found!", Snackbar.LENGTH_SHORT).show();
-                }
-                progressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void error(String errorMessage) {
-                Snackbar.make(snackBarLayout, "" + errorMessage, Snackbar.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE);
-            }
-        }, qrCode, snackBarLayout);
+        adapter = new PlanAdapter(PlanActivity.this, filteredList, PlanActivity.this);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -247,10 +264,10 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
                     return;
                 }
 
-                long id = databaseAdapter.updatePlanToLoad(model.getDescription(), qrCode, finalQuantity, model.getStorename(), model.getLineNos(),1);
+                long id = databaseAdapter.updatePlanToLoad(model.getDescription(), qrCode, finalQuantity, model.getStorename(), model.getLineNos(), 1);
                 if (id > 0) {
                     Snackbar.make(snackBarLayout, "Updated To " + finalQuantity, Snackbar.LENGTH_SHORT).show();
-                    loadPlan(qrCode);
+                    loadPlan("nothing");
                 } else {
                     Snackbar.make(snackBarLayout, "Failed to update", Snackbar.LENGTH_SHORT).show();
                 }

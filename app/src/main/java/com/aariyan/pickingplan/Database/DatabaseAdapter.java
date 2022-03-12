@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 
+import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Model.PlanModel;
 
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class DatabaseAdapter {
                             String toLoad, String reference) {
 
         SQLiteDatabase database = helper.getWritableDatabase();
+//        database.execSQL(DatabaseHelper.DROP_PLANS_TABLE);
+//        database.execSQL(DatabaseHelper.CREATE_PLANS_TABLE);
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseHelper.intAutoPicking, intAutoPicking);
@@ -51,6 +54,7 @@ public class DatabaseAdapter {
         contentValues.put(DatabaseHelper.toLoad, toLoad);
         contentValues.put(DatabaseHelper.reference, reference);
         contentValues.put(DatabaseHelper.FLAG, 1);
+        contentValues.put(DatabaseHelper.IP, Constant.BASE_URL);
 
         long id = database.insert(DatabaseHelper.PLAN_TABLE_NAME, null, contentValues);
         return id;
@@ -58,26 +62,27 @@ public class DatabaseAdapter {
 
 
     //get PLAN by reference No:
-    public List<PlanModel> getPlansByReference(String reference) {
+    public List<PlanModel> getPlans() {
 
         planList.clear();
         SQLiteDatabase database = helper.getWritableDatabase();
         //select * from tableName where name = ? and customerName = ?:
         // String selection = DatabaseHelper.USER_NAME+" where ? AND "+DatabaseHelper.CUSTOMER_NAME+" LIKE ?";
-        String selection = DatabaseHelper.reference + "=?";
+        String selection = DatabaseHelper.IP + "=?";
 //                " and " + DatabaseHelper.DATE + "=?" +
 //                " and " + DatabaseHelper.ROUTE_NAME + "=?" +
 //                " and " + DatabaseHelper.ORDER_TYPES + "=?" +
 //                " and " + DatabaseHelper.userId + "=?";
 
 
-        String[] args = {reference};
+        String[] args = {Constant.BASE_URL};
         String[] columns = {DatabaseHelper.UID, DatabaseHelper.intAutoPicking, DatabaseHelper.Storename, DatabaseHelper.Quantity,
                 DatabaseHelper.ItemCode, DatabaseHelper.Description, DatabaseHelper.SalesOrderNo, DatabaseHelper.OrderId,
                 DatabaseHelper.mass, DatabaseHelper.LineNos, DatabaseHelper.weights, DatabaseHelper.OrderDate,
                 DatabaseHelper.Instruction, DatabaseHelper.Area, DatabaseHelper.Toinvoice, DatabaseHelper.toLoad,
-                DatabaseHelper.FLAG, DatabaseHelper.reference};
+                DatabaseHelper.FLAG, DatabaseHelper.IP, DatabaseHelper.reference};
 
+        // Cursor cursor = database.query(DatabaseHelper.PLAN_TABLE_NAME, columns, selection, args, null, null, null);
         Cursor cursor = database.query(DatabaseHelper.PLAN_TABLE_NAME, columns, selection, args, null, null, null);
         while (cursor.moveToNext()) {
             PlanModel model = new PlanModel(
@@ -97,20 +102,32 @@ public class DatabaseAdapter {
                     cursor.getString(14),
                     cursor.getString(15),
                     cursor.getInt(16),
-                    cursor.getString(17)
+                    cursor.getString(17),
+                    cursor.getString(18)
             );
             planList.add(model);
         }
         return planList;
     }
 
+    //Drop plan Table:
+    public void dropPlanTable() {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        database.execSQL(DatabaseHelper.DROP_PLANS_TABLE);
+        database.execSQL(DatabaseHelper.CREATE_PLANS_TABLE);
+    }
+
 
     // Update Quantity by name and reference code:
     public long updatePlanToLoad(String itemName, String referenceCode, String quantity, String storeName, int lineNo, int flag) {
         SQLiteDatabase database = helper.getWritableDatabase();
-        String selection = DatabaseHelper.Description + " LIKE ? AND " + DatabaseHelper.reference + " LIKE ? AND " +
+//        String selection = DatabaseHelper.Description + " LIKE ? AND " + DatabaseHelper.reference + " LIKE ? AND " +
+//                DatabaseHelper.Storename + " LIKE ? AND " + DatabaseHelper.LineNos + " LIKE ? ";
+//        String[] args = {itemName, referenceCode, storeName, "" + lineNo};
+
+        String selection = DatabaseHelper.Description + " LIKE ? AND " +
                 DatabaseHelper.Storename + " LIKE ? AND " + DatabaseHelper.LineNos + " LIKE ? ";
-        String[] args = {itemName, referenceCode, storeName, "" + lineNo};
+        String[] args = {itemName, storeName, "" + lineNo};
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseHelper.toLoad, quantity);
@@ -138,12 +155,11 @@ public class DatabaseAdapter {
     }
 
 
-
     class DatabaseHelper extends SQLiteOpenHelper {
         private Context context;
 
         private static final String DATABASE_NAME = "picking_N_plan.db";
-        private static final int VERSION_NUMBER = 7;
+        private static final int VERSION_NUMBER = 11;
 
         //Header Table:
         private static final String PLAN_TABLE_NAME = "plans";
@@ -164,6 +180,7 @@ public class DatabaseAdapter {
         private static final String Toinvoice = "Toinvoice";
         private static final String toLoad = "toLoad";
         private static final String FLAG = "flag";
+        private static final String IP = "ip";
         private static final String reference = "reference";
 
         //Creating the table:
@@ -185,6 +202,7 @@ public class DatabaseAdapter {
                 + Toinvoice + " VARCHAR(255),"
                 + toLoad + " VARCHAR(255),"
                 + FLAG + " INTEGER,"
+                + IP + " VARCHAR(255),"
                 + reference + " VARCHAR(255));";
         private static final String DROP_PLANS_TABLE = "DROP TABLE IF EXISTS " + PLAN_TABLE_NAME;
 

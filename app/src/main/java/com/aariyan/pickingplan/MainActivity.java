@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     Toast.makeText(MainActivity.this, "Saved", Toast.LENGTH_SHORT).show();
                     Constant.BASE_URL = getURL();
+                    Toast.makeText(MainActivity.this, "" + Constant.BASE_URL, Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Ip should end with a / (Forward slash)", Toast.LENGTH_SHORT).show();
                 }
@@ -157,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public String getURL() {
         S_Preferences sharedPreferences = new S_Preferences(MainActivity.this);
+        //Constant.BASE_URL = sharedPreferences.getBaseUrl("root");
         return sharedPreferences.getBaseUrl("root");
     }
 
@@ -173,8 +176,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //Checking the log-In validation whether the entered data is correct or not:
     private void logInValidation() {
         progressBar.setVisibility(View.VISIBLE);
-        S_Preferences s_preferences = new S_Preferences(MainActivity.this);
-        Constant.BASE_URL = s_preferences.getBaseUrl(Constant.SHARED_PREFERENCE_ROOT_NAME_FOR_BASE_URL);
+        Constant.BASE_URL = getURL();
+        Log.d("URLs", Constant.BASE_URL);
 
         //Entered value from edit Text:
         String enteredPinCode = enterCodeEdtText.getText().toString().trim();

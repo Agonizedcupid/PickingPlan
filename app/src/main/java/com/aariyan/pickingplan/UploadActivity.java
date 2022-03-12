@@ -54,7 +54,8 @@ public class UploadActivity extends AppCompatActivity {
 
     private void loadData() {
         listOfPostData.clear();
-        listOfPostData = filter.getPostData(databaseAdapter.getPlansByReference(referenceCode));
+        //listOfPostData = filter.getPostData(databaseAdapter.getPlansByReference(referenceCode));
+        listOfPostData = filter.getPostData(databaseAdapter.getPlans());
         //Toast.makeText(this, ""+listOfPostData.size(), Toast.LENGTH_SHORT).show();
 
         adapter = new PostAdapter(this, listOfPostData);

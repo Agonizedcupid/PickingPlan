@@ -2,9 +2,11 @@ package com.aariyan.pickingplan;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,7 +27,7 @@ import com.journeyapps.barcodescanner.ScanOptions;
 
 public class BarcodeActivity extends AppCompatActivity {
 
-    private Button tapToScan, getPlan;
+    private Button tapToScan, getPlan, continueWithMyPlay;
     private TextView scannedCode;
     private ConstraintLayout snackBarLayout;
 
@@ -38,11 +40,20 @@ public class BarcodeActivity extends AppCompatActivity {
         initUI(savedInstanceState);
     }
 
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(BarcodeActivity.this, MainActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        super.onBackPressed();
+    }
+
     private void initUI(Bundle savedInstanceState) {
         snackBarLayout = findViewById(R.id.snackBarLayout);
         tapToScan = findViewById(R.id.tapToScanCode);
         scannedCode = findViewById(R.id.scannedCode);
         getPlan = findViewById(R.id.getPlan);
+        continueWithMyPlay = findViewById(R.id.continueWithMyPLan);
         tapToScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,20 +62,54 @@ public class BarcodeActivity extends AppCompatActivity {
             }
         });
 
+        //It will show the default data from local DB:
         getPlan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(BarcodeActivity.this, PlanActivity.class);
+                intent.putExtra("qrCode", "nothing");
+                intent.putExtra("userId", getIntent().getIntExtra("userId", 1));
+                startActivity(intent);
+                //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
+        });
+
+        //This will pull the new data from server:
+        continueWithMyPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String code = scannedCode.getText().toString();
 
                 if (TextUtils.isEmpty(code)) {
-                    Snackbar.make(snackBarLayout,"you didn't scan anything", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(snackBarLayout, "you didn't scan anything", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
-                Intent intent = new Intent(BarcodeActivity.this, PlanActivity.class);
-                intent.putExtra("qrCode", code);
-                intent.putExtra("userId", getIntent().getIntExtra("userId",1));
-                startActivity(intent);
-                //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
+                AlertDialog alertDialog = new AlertDialog.Builder(BarcodeActivity.this).create();
+                alertDialog.setTitle("Alert Message");
+                alertDialog.setMessage("Are you sure you want to get new Data?");
+                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(BarcodeActivity.this, PlanActivity.class);
+                        intent.putExtra("qrCode", code);
+                        intent.putExtra("userId", getIntent().getIntExtra("userId", 1));
+                        startActivity(intent);
+                    }
+                });
+
+                alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(BarcodeActivity.this, PlanActivity.class);
+                        intent.putExtra("qrCode", "nothing");
+                        intent.putExtra("userId", getIntent().getIntExtra("userId", 1));
+                        startActivity(intent);
+                    }
+                });
+
+                alertDialog.show();
+
             }
         });
     }
@@ -84,7 +129,7 @@ public class BarcodeActivity extends AppCompatActivity {
                     Log.d("MainActivity", "Scanned");
                     Toast.makeText(BarcodeActivity.this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
                     scannedCode.setText(result.getContents());
-                    Log.d("SCANNED_RESULT", ""+result.getContents());
+                    Log.d("SCANNED_RESULT", "" + result.getContents());
                 }
             });
 

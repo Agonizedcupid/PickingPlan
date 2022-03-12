@@ -2,9 +2,12 @@ package com.aariyan.pickingplan.Networking;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
@@ -13,17 +16,31 @@ import com.aariyan.pickingplan.Database.DatabaseAdapter;
 import com.aariyan.pickingplan.Interface.GetPLanInterface;
 import com.aariyan.pickingplan.Interface.LogInInterface;
 import com.aariyan.pickingplan.Interface.RestApis;
+import com.aariyan.pickingplan.MainActivity;
 import com.aariyan.pickingplan.Model.AuthenticationModel;
 import com.aariyan.pickingplan.Model.PlanModel;
 import com.aariyan.pickingplan.Model.PostModel;
+import com.aariyan.pickingplan.PlanActivity;
 import com.aariyan.pickingplan.R;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -34,6 +51,8 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class NetworkingFeedback {
 
@@ -45,6 +64,7 @@ public class NetworkingFeedback {
     private List<PlanModel> listOfPlans;
     DatabaseAdapter databaseAdapter;
     private Activity activity;
+    private RequestQueue requestQueue;
 
     public NetworkingFeedback(Context context, Activity activity) {
         this.context = context;
@@ -53,44 +73,179 @@ public class NetworkingFeedback {
         listOfPlans = new ArrayList<>();
         databaseAdapter = new DatabaseAdapter(context);
         this.activity = activity;
+        requestQueue = Volley.newRequestQueue(context);
     }
 
     public void postLogInResponse(LogInInterface logInInterface, String pinCode) {
-        compositeDisposable.add(apis.logInResponse(pinCode)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<ResponseBody>() {
-                    @Override
-                    public void accept(ResponseBody responseBody) throws Throwable {
-                        JSONArray root = new JSONArray(responseBody.string());
-                        listOfUsers.clear();
-                        for (int i = 0; i < root.length(); i++) {
-                            JSONObject single = root.getJSONObject(i);
-                            int userId = single.getInt("UserId");
-                            int locationId = single.getInt("LocationId");
-                            String pickingTeams = single.getString("strPickingTeams");
+        String URL = Constant.BASE_URL + "users.php";
+        Log.d("RESPONSE", URL);
+        /*JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.POST, URL
+                , null, new com.android.volley.Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray root) {
+                Log.d("RESPONSE", root.toString());
+                try {
+                    listOfUsers.clear();
+                    for (int i = 0; i < root.length(); i++) {
+                        JSONObject single = root.getJSONObject(i);
+                        int userId = single.getInt("UserId");
+                        int locationId = single.getInt("LocationId");
+                        String pickingTeams = single.getString("strPickingTeams");
 
-                            AuthenticationModel model = new AuthenticationModel(userId, locationId, pickingTeams);
-                            listOfUsers.add(model);
-                        }
-                        logInInterface.checkLogIn(listOfUsers);
+                        AuthenticationModel model = new AuthenticationModel(userId, locationId, pickingTeams);
+                        listOfUsers.add(model);
                     }
-                }, new Consumer<Throwable>() {
+                    logInInterface.checkLogIn(listOfUsers);
+                } catch (Exception throwable) {
+                    logInInterface.onError(throwable.getMessage());
+                    Log.d("RESPONSE", throwable.getMessage());
+                }
+            }
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError throwable) {
+                logInInterface.onError(throwable.getMessage());
+                Log.d("RESPONSE", throwable.getMessage());
+            }
+
+        }) {
+            @Override
+            public byte[] getBody() {
+                Map<String, String> map = new HashMap<>();
+                map.put("pincode", pinCode);
+                return new Gson().toJson(map).getBytes(StandardCharsets.UTF_8);
+            }
+        };
+
+        requestQueue.add(arrayRequest);*/
+
+        StringRequest mStringRequest = new StringRequest(
+                Request.Method.POST,
+                URL,
+                new Response.Listener<String>() {
                     @Override
-                    public void accept(Throwable throwable) throws Throwable {
-                        logInInterface.onError(throwable.getMessage());
+                    public void onResponse(String responseBody) {
+                        try {
+                            JSONArray root = new JSONArray(responseBody);
+                            listOfUsers.clear();
+                            for (int i = 0; i < root.length(); i++) {
+                                JSONObject single = root.getJSONObject(i);
+                                int userId = single.getInt("UserId");
+                                int locationId = single.getInt("LocationId");
+                                String pickingTeams = single.getString("strPickingTeams");
+
+                                AuthenticationModel model = new AuthenticationModel(userId, locationId, pickingTeams);
+                                listOfUsers.add(model);
+                            }
+                            logInInterface.checkLogIn(listOfUsers);
+                        } catch (Exception throwable) {
+                            logInInterface.onError(throwable.getMessage());
+                            Log.d("RESPONSE", throwable.getMessage());
+                        }
                     }
-                }));
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError throwable) {
+                        logInInterface.onError(throwable.getMessage());
+                        Log.e("TAGEEEE", "onErrorResponse: " + throwable.getMessage());
+                    }
+                }
+        ) {
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<>();
+                map.put("pincode", pinCode);
+                return map;
+            }
+        };
+
+        requestQueue.add(mStringRequest);
+
+//        Call<ResponseBody> call = apis.logInResponse(pinCode);
+//        call.enqueue(new Callback<ResponseBody>() {
+//            @Override
+//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> responseBody) {
+//                try {
+//                    JSONArray root = new JSONArray(responseBody.body().string());
+//                    listOfUsers.clear();
+//                    for (int i = 0; i < root.length(); i++) {
+//                        JSONObject single = root.getJSONObject(i);
+//                        int userId = single.getInt("UserId");
+//                        int locationId = single.getInt("LocationId");
+//                        String pickingTeams = single.getString("strPickingTeams");
+//
+//                        AuthenticationModel model = new AuthenticationModel(userId, locationId, pickingTeams);
+//                        listOfUsers.add(model);
+//                    }
+//                    logInInterface.checkLogIn(listOfUsers);
+//                } catch (Exception throwable) {
+//                    logInInterface.onError(throwable.getMessage());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+//                logInInterface.onError(throwable.getMessage());
+//            }
+//        });
+    }
+
+//    public void postLogInResponse(LogInInterface logInInterface, String pinCode) {
+//        Log.d("URL", Constant.BASE_URL);
+//        compositeDisposable.add(apis.logInResponse(pinCode)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Consumer<ResponseBody>() {
+//                    @Override
+//                    public void accept(ResponseBody responseBody) throws Throwable {
+//                        JSONArray root = new JSONArray(responseBody.string());
+//                        listOfUsers.clear();
+//                        for (int i = 0; i < root.length(); i++) {
+//                            JSONObject single = root.getJSONObject(i);
+//                            int userId = single.getInt("UserId");
+//                            int locationId = single.getInt("LocationId");
+//                            String pickingTeams = single.getString("strPickingTeams");
+//
+//                            AuthenticationModel model = new AuthenticationModel(userId, locationId, pickingTeams);
+//                            listOfUsers.add(model);
+//                        }
+//                        logInInterface.checkLogIn(listOfUsers);
+//
+//                    }
+//                }, new Consumer<Throwable>() {
+//                    @Override
+//                    public void accept(Throwable throwable) throws Throwable {
+//                        logInInterface.onError(throwable.getMessage());
+//                    }
+//                }));
+//    }
+
+    public List<PlanModel> getPlanForFilter() {
+        return listOfPlans = databaseAdapter.getPlans();
     }
 
     public void getPlan(GetPLanInterface getPLanInterface, String qrCode, CoordinatorLayout snackBarLayout) {
+        Log.d("TESTING_URL", "" + Constant.BASE_URL);
         listOfPlans.clear();
-        listOfPlans = databaseAdapter.getPlansByReference(qrCode);
-        if (listOfPlans.size() > 0) {
+        if (qrCode.equals("nothing")) {
+            //listOfPlans = databaseAdapter.getPlansByReference(qrCode);
+            listOfPlans = databaseAdapter.getPlans();
             getPLanInterface.gotPlan(listOfPlans);
-            Snackbar.make(snackBarLayout, "Data showing from local storage", Snackbar.LENGTH_SHORT).show();
-            //printToast(Thread.currentThread().getName());
-        } else {
+            if (listOfPlans.size() > 0) {
+                Snackbar.make(snackBarLayout, "Data showing from local storage", Snackbar.LENGTH_SHORT).show();
+            } else {
+                Snackbar.make(snackBarLayout, "No data found!", Snackbar.LENGTH_SHORT).show();
+            }
+
+        }
+//        if (listOfPlans.size() > 0) {
+//            getPLanInterface.gotPlan(listOfPlans);
+//            Snackbar.make(snackBarLayout, "Data showing from local storage", Snackbar.LENGTH_SHORT).show();
+//            //printToast(Thread.currentThread().getName());
+//        }
+        else {
             compositeDisposable.add(apis.getPlan(qrCode)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -118,7 +273,7 @@ public class NetworkingFeedback {
 
                                 PlanModel model = new PlanModel(intAutoPicking, Storename, Quantity, ItemCode, Description,
                                         SalesOrderNo, OrderId, mass, LineNos, weights, OrderDate, Instruction, Area, Toinvoice,
-                                        "0", 1, qrCode);
+                                        "0", 1, qrCode,Constant.BASE_URL);
 //                                model.setReference(qrCode);
 //                                model.setToLoad("0");
                                 listOfPlans.add(model);
@@ -168,7 +323,7 @@ public class NetworkingFeedback {
     }
 
     //Post on server database:
-   // public void postDataOnServer(List<PostModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
+    // public void postDataOnServer(List<PostModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
     public void postDataOnServer(List<PlanModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
 
         Observable<PlanModel> observable = Observable.fromIterable(listOfPostData)
@@ -176,9 +331,10 @@ public class NetworkingFeedback {
         Observer observer = new Observer() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
-//                if (d.isDisposed()) {
-//                    Snackbar.make(snackBarLayout, "Data uploaded successfully!", Snackbar.LENGTH_SHORT).show();
-//                }
+                if (d.isDisposed()) {
+                    Snackbar.make(snackBarLayout, "Data uploaded successfully!", Snackbar.LENGTH_SHORT).show();
+                    context.getApplicationContext().startActivity(new Intent(context, PlanActivity.class));
+                }
             }
 
             @Override
@@ -201,7 +357,7 @@ public class NetworkingFeedback {
                                             JSONObject single = root.getJSONObject(i);
                                             String toLoad = single.getString("toLoad");
                                             String result = single.getString("result");
-                                            Snackbar.make(snackBarLayout, "Data is uploading (" + result + ")", Snackbar.LENGTH_SHORT).show();
+                                            //Snackbar.make(snackBarLayout, "Data is uploading (" + result + ")", Snackbar.LENGTH_SHORT).show();
                                             Log.d("UPLOAD_STATUS", "toLoad: " + toLoad + " InModel: " + model.getToLoad());
                                             databaseAdapter.updatePlanByLine(model.getLineNos(), 0);
                                         }
@@ -235,11 +391,11 @@ public class NetworkingFeedback {
         observable.subscribe(observer);
     }
 
-    private void printToast(String message){
+    private void printToast(String message) {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(context, ""+message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
             }
         });
     }

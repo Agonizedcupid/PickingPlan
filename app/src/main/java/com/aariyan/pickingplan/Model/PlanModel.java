@@ -12,6 +12,8 @@ public class PlanModel {
 
     private int flag;
 
+    private String URL;
+
     public PlanModel(){}
 
     //FOr RestAPIs
@@ -33,7 +35,7 @@ public class PlanModel {
     }
 
     //For SQLite
-    public PlanModel(int intAutoPicking, String storename, String quantity, String itemCode, String description, String salesOrderNo, int orderId, String mass, int lineNos, String weights, String orderDate, String instruction, String area, String toinvoice, String toLoad,int flag, String reference) {
+    public PlanModel(int intAutoPicking, String storename, String quantity, String itemCode, String description, String salesOrderNo, int orderId, String mass, int lineNos, String weights, String orderDate, String instruction, String area, String toinvoice, String toLoad,int flag, String URL, String reference) {
         this.intAutoPicking = intAutoPicking;
         Storename = storename;
         Quantity = quantity;
@@ -51,6 +53,15 @@ public class PlanModel {
         this.toLoad = toLoad;
         this.reference = reference;
         this.flag = flag;
+        this.URL = URL;
+    }
+
+    public String getURL() {
+        return URL;
+    }
+
+    public void setURL(String URL) {
+        this.URL = URL;
     }
 
     public int getFlag() {
