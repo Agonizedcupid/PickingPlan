@@ -80,7 +80,7 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
                 //Drop the table before getting the data:
                 databaseAdapter.dropPlanTable();
                 loadPlan(qrCode);
-                referenceNo.setText("Reference: " + qrCode);
+                //referenceNo.setText("Reference: " + qrCode);
             }
         }
     }

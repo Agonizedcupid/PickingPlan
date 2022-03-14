@@ -88,7 +88,7 @@
         app:layout_constraintTop_creator="1"
         android:layout_marginStart="25dp"
         android:textSize="12sp"
-        android:text="Get Plan"
+        android:text="Continue My Plan"
         android:layout_marginBottom="10dp"
         />
 
@@ -107,7 +107,7 @@
         android:layout_marginEnd="25dp"
         android:layout_marginStart="25dp"
         android:textSize="12sp"
-        android:text="Continue My Plan"
+        android:text="Get Plan"
         android:layout_marginBottom="10dp"
         />
 

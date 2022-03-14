@@ -273,7 +273,7 @@ public class NetworkingFeedback {
 
                                 PlanModel model = new PlanModel(intAutoPicking, Storename, Quantity, ItemCode, Description,
                                         SalesOrderNo, OrderId, mass, LineNos, weights, OrderDate, Instruction, Area, Toinvoice,
-                                        "0", 1, qrCode,Constant.BASE_URL);
+                                        "0", 1, ""+Constant.BASE_URL,""+qrCode);
 //                                model.setReference(qrCode);
 //                                model.setToLoad("0");
                                 listOfPlans.add(model);
@@ -326,15 +326,14 @@ public class NetworkingFeedback {
     // public void postDataOnServer(List<PostModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
     public void postDataOnServer(List<PlanModel> listOfPostData, ConstraintLayout snackBarLayout, int userId) {
 
+        //Toast.makeText(context, ""+userId, Toast.LENGTH_SHORT).show();
+
         Observable<PlanModel> observable = Observable.fromIterable(listOfPostData)
                 .subscribeOn(Schedulers.io());
         Observer observer = new Observer() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
-                if (d.isDisposed()) {
-                    Snackbar.make(snackBarLayout, "Data uploaded successfully!", Snackbar.LENGTH_SHORT).show();
-                    context.getApplicationContext().startActivity(new Intent(context, PlanActivity.class));
-                }
+
             }
 
             @Override
@@ -385,7 +384,17 @@ public class NetworkingFeedback {
 
             @Override
             public void onComplete() {
-                Snackbar.make(snackBarLayout, "Data posted successfully", Snackbar.LENGTH_SHORT).show();
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        context.startActivity(new Intent(context, PlanActivity.class)
+                        .putExtra("qrCode", "nothing")
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        Snackbar.make(snackBarLayout, "Data posted successfully", Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+
             }
         };
         observable.subscribe(observer);
