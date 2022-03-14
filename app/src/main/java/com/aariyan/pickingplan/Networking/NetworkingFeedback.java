@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import com.aariyan.pickingplan.BarcodeActivity;
 import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Database.DatabaseAdapter;
 import com.aariyan.pickingplan.Interface.GetPLanInterface;
@@ -273,7 +274,7 @@ public class NetworkingFeedback {
 
                                 PlanModel model = new PlanModel(intAutoPicking, Storename, Quantity, ItemCode, Description,
                                         SalesOrderNo, OrderId, mass, LineNos, weights, OrderDate, Instruction, Area, Toinvoice,
-                                        "0", 1, ""+Constant.BASE_URL,""+qrCode);
+                                        ""+Toinvoice, 1, ""+Constant.BASE_URL,""+qrCode);
 //                                model.setReference(qrCode);
 //                                model.setToLoad("0");
                                 listOfPlans.add(model);
@@ -341,7 +342,7 @@ public class NetworkingFeedback {
                 PlanModel model = (PlanModel) o;
                 compositeDisposable.add(apis
                         .postPickedQty(model.getIntAutoPicking(),
-                                Integer.parseInt(model.getToLoad()),
+                                model.getToLoad(),
                                 userId)
                         .subscribeOn(Schedulers.io())
                         .subscribe(new Consumer<ResponseBody>() {
@@ -387,10 +388,11 @@ public class NetworkingFeedback {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        context.startActivity(new Intent(context, PlanActivity.class)
-                        .putExtra("qrCode", "nothing")
+                        context.startActivity(new Intent(context, BarcodeActivity.class)
+                        //.putExtra("qrCode", "nothing")
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        databaseAdapter.dropPlanTable();
                         Snackbar.make(snackBarLayout, "Data posted successfully", Snackbar.LENGTH_SHORT).show();
                     }
                 });
