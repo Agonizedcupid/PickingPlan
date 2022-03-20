@@ -1,6 +1,8 @@
 package com.aariyan.pickingplan.Adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,9 +39,31 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         PlanModel model = list.get(position);
 
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (position == 0) {
+                    holder.salesOrderNo.setVisibility(View.VISIBLE);
+                    holder.storeName.setVisibility(View.VISIBLE);
+                    holder.titleLayout.setVisibility(View.VISIBLE);
+                }
+
+                if (position > 0) {
+                    if (list.get(position).getStorename().equals(list.get(position - 1).getStorename())) {
+                        holder.salesOrderNo.setVisibility(View.GONE);
+                        holder.storeName.setVisibility(View.GONE);
+                        holder.titleLayout.setVisibility(View.GONE);
+                    } else {
+                        holder.salesOrderNo.setVisibility(View.VISIBLE);
+                        holder.storeName.setVisibility(View.VISIBLE);
+                        holder.titleLayout.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        });
 //        if (position == 0) {
 //            holder.salesOrderNo.setVisibility(View.VISIBLE);
 //            holder.storeName.setVisibility(View.VISIBLE);

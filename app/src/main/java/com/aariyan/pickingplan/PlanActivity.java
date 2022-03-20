@@ -243,7 +243,6 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         filteredList.clear();
         List<PlanModel> list = new NetworkingFeedback(PlanActivity.this, PlanActivity.this).getPlanForFilter();
         filteredList = new Filter(PlanActivity.this).getFilteredData(list, flag);
-
         adapter = new PlanAdapter(PlanActivity.this, filteredList, PlanActivity.this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
