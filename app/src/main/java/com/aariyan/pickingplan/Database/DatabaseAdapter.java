@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Model.PlanModel;
+import com.aariyan.pickingplan.Model.RefModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class DatabaseAdapter {
 
     DatabaseHelper helper;
     private List<PlanModel> planList = new ArrayList<>();
+    private List<RefModel> refList = new ArrayList<>();
 
 
     public DatabaseAdapter(Context context) {
@@ -58,6 +60,48 @@ public class DatabaseAdapter {
 
         long id = database.insert(DatabaseHelper.PLAN_TABLE_NAME, null, contentValues);
         return id;
+    }
+
+    //Insert Ref:
+    public long insertRef(int intAutoPickingHeader,String strUnickReference,String strPickingNickname, int userID) {
+
+        SQLiteDatabase database = helper.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DatabaseHelper.intAutoPickingHeader, intAutoPickingHeader);
+        contentValues.put(DatabaseHelper.userId, userID);
+        contentValues.put(DatabaseHelper.strUnickReference, strUnickReference);
+        contentValues.put(DatabaseHelper.strPickingNickname, strPickingNickname);
+
+        long id = database.insert(DatabaseHelper.REFERENCE_TABLE_NAME, null, contentValues);
+        return id;
+    }
+
+    //get Reference
+    public List<RefModel> getRefById(int userID) {
+
+        refList.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        //select * from tableName where name = ? and customerName = ?:
+        // String selection = DatabaseHelper.USER_NAME+" where ? AND "+DatabaseHelper.CUSTOMER_NAME+" LIKE ?";
+        String selection = DatabaseHelper.userId + "=?";
+
+        String[] args = {""+userID};
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.intAutoPickingHeader,DatabaseHelper.userId,
+                DatabaseHelper.strUnickReference,DatabaseHelper.strPickingNickname
+        };
+
+        // Cursor cursor = database.query(DatabaseHelper.PLAN_TABLE_NAME, columns, selection, args, null, null, null);
+        Cursor cursor = database.query(DatabaseHelper.REFERENCE_TABLE_NAME, columns, selection, args, null, null, null);
+        while (cursor.moveToNext()) {
+            RefModel model = new RefModel(
+                    cursor.getInt(1),
+                    cursor.getString(3),
+                    cursor.getString(4)
+            );
+            refList.add(model);
+        }
+        return refList;
     }
 
 
@@ -117,6 +161,13 @@ public class DatabaseAdapter {
         database.execSQL(DatabaseHelper.CREATE_PLANS_TABLE);
     }
 
+    //Drop plan Table:
+    public void dropRefTable() {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        database.execSQL(DatabaseHelper.DROP_REFERENCE_TABLE);
+        database.execSQL(DatabaseHelper.CREATE_REF_TABLE);
+    }
+
 
     // Update Quantity by name and reference code:
     public long updatePlanToLoad(String itemName, String referenceCode, String quantity, String storeName, int lineNo, int flag) {
@@ -159,7 +210,7 @@ public class DatabaseAdapter {
         private Context context;
 
         private static final String DATABASE_NAME = "picking_N_plan.db";
-        private static final int VERSION_NUMBER = 11;
+        private static final int VERSION_NUMBER = 12;
 
         //Header Table:
         private static final String PLAN_TABLE_NAME = "plans";
@@ -206,6 +257,22 @@ public class DatabaseAdapter {
                 + reference + " VARCHAR(255));";
         private static final String DROP_PLANS_TABLE = "DROP TABLE IF EXISTS " + PLAN_TABLE_NAME;
 
+        //Ref Table:
+        private static final String REFERENCE_TABLE_NAME = "ref";
+        private static final String intAutoPickingHeader = "intAutoPickingHeader";
+        private static final String strUnickReference = "strUnickReference";
+        private static final String strPickingNickname = "strPickingNickname";
+        private static final String userId = "userId";
+
+        //Creating the table:
+        private static final String CREATE_REF_TABLE = "CREATE TABLE " + REFERENCE_TABLE_NAME
+                + " (" + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + intAutoPickingHeader + " INTEGER,"
+                + userId + " INTEGER,"
+                + strUnickReference + " VARCHAR(255),"
+                + strPickingNickname + " VARCHAR(255));";
+        private static final String DROP_REFERENCE_TABLE = "DROP TABLE IF EXISTS " + REFERENCE_TABLE_NAME;
+
 
         public DatabaseHelper(@Nullable Context context) {
             super(context, DATABASE_NAME, null, VERSION_NUMBER);
@@ -217,6 +284,7 @@ public class DatabaseAdapter {
             //Create table:
             try {
                 db.execSQL(CREATE_PLANS_TABLE);
+                db.execSQL(CREATE_REF_TABLE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -227,6 +295,7 @@ public class DatabaseAdapter {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             try {
                 db.execSQL(DROP_PLANS_TABLE);
+                db.execSQL(DROP_REFERENCE_TABLE);
                 onCreate(db);
             } catch (Exception e) {
                 e.printStackTrace();

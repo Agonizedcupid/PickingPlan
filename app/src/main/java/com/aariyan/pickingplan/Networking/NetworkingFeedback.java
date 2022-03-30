@@ -83,37 +83,52 @@ public class NetworkingFeedback {
     }
 
     public void getReferenceFromServer(int id, RefInterface refInterface) {
-        refDisposable.add(apis.getReference(id)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Consumer<ResponseBody>() {
-            @Override
-            public void accept(ResponseBody responseBody) throws Throwable {
-                JSONArray root = new JSONArray(responseBody.string());
-                if (root.length() > 0) {
-                    listOfRef.clear();
-                    for (int i=0; i<root.length(); i++) {
-                        JSONObject single = root.getJSONObject(i);
-                        int intAutoPickingHeader = single.getInt("intAutoPickingHeader");
-                        String strUnickReference = single.getString("strUnickReference");
-                        String strPickingNickname  = single.getString("strPickingNickname");
-
-                        RefModel model = new RefModel(intAutoPickingHeader, strUnickReference, strPickingNickname);
-                        listOfRef.add(model);
-
-                    }
-                    refInterface.onSuccess(listOfRef);
-
-                } else {
-                    refInterface.onError("No Reference Found!");
+        listOfRef.clear();
+        listOfRef = databaseAdapter.getRefById(id);
+        if (listOfRef.size() > 0) {
+            refInterface.onSuccess(listOfRef);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, "Showing from local database", Toast.LENGTH_SHORT).show();
                 }
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Throwable {
-                refInterface.onError(""+throwable.getMessage());
-            }
-        }));
+            });
+            return;
+        } else {
+            databaseAdapter.dropRefTable();
+            refDisposable.add(apis.getReference(id)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<ResponseBody>() {
+                        @Override
+                        public void accept(ResponseBody responseBody) throws Throwable {
+                            JSONArray root = new JSONArray(responseBody.string());
+                            if (root.length() > 0) {
+                                listOfRef.clear();
+                                for (int i = 0; i < root.length(); i++) {
+                                    JSONObject single = root.getJSONObject(i);
+                                    int intAutoPickingHeader = single.getInt("intAutoPickingHeader");
+                                    String strUnickReference = single.getString("strUnickReference");
+                                    String strPickingNickname = single.getString("strPickingNickname");
+
+                                    RefModel model = new RefModel(intAutoPickingHeader, strUnickReference, strPickingNickname);
+                                    listOfRef.add(model);
+
+                                }
+                                refInterface.onSuccess(listOfRef);
+                                insertRef(listOfRef, id);
+
+                            } else {
+                                refInterface.onError("No Reference Found!");
+                            }
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Throwable {
+                            refInterface.onError("" + throwable.getMessage());
+                        }
+                    }));
+        }
     }
 
     public void postLogInResponse(LogInInterface logInInterface, String pinCode) {
@@ -313,7 +328,7 @@ public class NetworkingFeedback {
 
                                 PlanModel model = new PlanModel(intAutoPicking, Storename, Quantity, ItemCode, Description,
                                         SalesOrderNo, OrderId, mass, LineNos, weights, OrderDate, Instruction, Area, Toinvoice,
-                                        ""+Toinvoice, 1, ""+Constant.BASE_URL,""+qrCode);
+                                        "" + Toinvoice, 1, "" + Constant.BASE_URL, "" + qrCode);
 //                                model.setReference(qrCode);
 //                                model.setToLoad("0");
                                 listOfPlans.add(model);
@@ -428,9 +443,9 @@ public class NetworkingFeedback {
                     @Override
                     public void run() {
                         context.startActivity(new Intent(context, BarcodeActivity.class)
-                        //.putExtra("qrCode", "nothing")
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                                //.putExtra("qrCode", "nothing")
+                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         databaseAdapter.dropPlanTable();
                         Snackbar.make(snackBarLayout, "Data posted successfully", Snackbar.LENGTH_SHORT).show();
                     }
@@ -441,12 +456,39 @@ public class NetworkingFeedback {
         observable.subscribe(observer);
     }
 
-    private void printToast(String message) {
-        activity.runOnUiThread(new Runnable() {
+
+    private void insertRef(List<RefModel> list, int id) {
+        Observable<RefModel> observable = Observable.fromIterable(list)
+                .subscribeOn(Schedulers.io());
+
+        Observer observer = new Observer() {
             @Override
-            public void run() {
-                Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
+            public void onSubscribe(@NonNull Disposable d) {
+
             }
-        });
+
+            @Override
+            public void onNext(Object o) {
+                RefModel model = (RefModel) o;
+                databaseAdapter.insertRef(model.getIntAutoPickingHeader(), model.getStrUnickReference(), model.getStrPickingNickname(),
+                        id);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Saved Locally", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        };
+        observable.subscribe(observer);
     }
 }
