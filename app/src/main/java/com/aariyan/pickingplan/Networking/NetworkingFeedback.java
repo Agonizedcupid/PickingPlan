@@ -16,11 +16,13 @@ import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Database.DatabaseAdapter;
 import com.aariyan.pickingplan.Interface.GetPLanInterface;
 import com.aariyan.pickingplan.Interface.LogInInterface;
+import com.aariyan.pickingplan.Interface.RefInterface;
 import com.aariyan.pickingplan.Interface.RestApis;
 import com.aariyan.pickingplan.MainActivity;
 import com.aariyan.pickingplan.Model.AuthenticationModel;
 import com.aariyan.pickingplan.Model.PlanModel;
 import com.aariyan.pickingplan.Model.PostModel;
+import com.aariyan.pickingplan.Model.RefModel;
 import com.aariyan.pickingplan.PlanActivity;
 import com.aariyan.pickingplan.R;
 import com.android.volley.AuthFailureError;
@@ -66,6 +68,9 @@ public class NetworkingFeedback {
     DatabaseAdapter databaseAdapter;
     private Activity activity;
     private RequestQueue requestQueue;
+    private List<RefModel> listOfRef = new ArrayList<>();
+
+    CompositeDisposable refDisposable = new CompositeDisposable();
 
     public NetworkingFeedback(Context context, Activity activity) {
         this.context = context;
@@ -75,6 +80,40 @@ public class NetworkingFeedback {
         databaseAdapter = new DatabaseAdapter(context);
         this.activity = activity;
         requestQueue = Volley.newRequestQueue(context);
+    }
+
+    public void getReferenceFromServer(int id, RefInterface refInterface) {
+        refDisposable.add(apis.getReference(id)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Consumer<ResponseBody>() {
+            @Override
+            public void accept(ResponseBody responseBody) throws Throwable {
+                JSONArray root = new JSONArray(responseBody.string());
+                if (root.length() > 0) {
+                    listOfRef.clear();
+                    for (int i=0; i<root.length(); i++) {
+                        JSONObject single = root.getJSONObject(i);
+                        int intAutoPickingHeader = single.getInt("intAutoPickingHeader");
+                        String strUnickReference = single.getString("strUnickReference");
+                        String strPickingNickname  = single.getString("strPickingNickname");
+
+                        RefModel model = new RefModel(intAutoPickingHeader, strUnickReference, strPickingNickname);
+                        listOfRef.add(model);
+
+                    }
+                    refInterface.onSuccess(listOfRef);
+
+                } else {
+                    refInterface.onError("No Reference Found!");
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Throwable {
+                refInterface.onError(""+throwable.getMessage());
+            }
+        }));
     }
 
     public void postLogInResponse(LogInInterface logInInterface, String pinCode) {

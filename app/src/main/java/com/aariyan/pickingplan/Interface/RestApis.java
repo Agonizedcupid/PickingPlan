@@ -28,4 +28,7 @@ public interface RestApis {
     @POST("PostPickedQty.php")
     Observable<ResponseBody> postPickedQty(@Field("intPickingId") int itemId, @Field("Qty") String quantity,
                                            @Field("userId") int userId);
+
+    @GET("GetPickingHeaders.php?")
+    Observable<ResponseBody> getReference(@Query("userid") int userId);
 }

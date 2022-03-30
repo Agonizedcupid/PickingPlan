@@ -57,6 +57,33 @@
         app:layout_constraintBottom_creator="1"
         />
 
+    <ProgressBar
+        android:id="@+id/pBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbarLayout"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="true"
+        android:max="100"
+        android:visibility="gone"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/refRecyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/getPlan"
+        app:layout_constraintTop_toBottomOf="@id/pBar"
+        app:layout_constraintTop_creator="1"
+        app:layout_constraintLeft_creator="1"
+        app:layout_constraintRight_creator="1"
+        app:layout_constraintBottom_creator="1"
+        />
+
     <Button
         android:id="@+id/tapToScanCode"
         android:layout_width="match_parent"
@@ -72,21 +99,21 @@
         android:text="Tap here to scan!"
         android:textAllCaps="false"
         android:textSize="16sp"
+        android:visibility="gone"
         />
 
     <Button
         android:id="@+id/getPlan"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintRight_toLeftOf="@id/continueWithMyPLan"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tapToScanCode"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_creator="1"
         app:layout_constraintRight_creator="1"
         app:layout_constraintBottom_creator="1"
         app:layout_constraintTop_creator="1"
-        android:layout_marginStart="25dp"
+        android:layout_margin="25dp"
         android:textSize="12sp"
         android:text="Continue My Plan"
         android:layout_marginBottom="10dp"
@@ -108,6 +135,7 @@
         android:layout_marginStart="25dp"
         android:textSize="12sp"
         android:text="Get Plan"
+        android:visibility="gone"
         android:layout_marginBottom="10dp"
         />
 

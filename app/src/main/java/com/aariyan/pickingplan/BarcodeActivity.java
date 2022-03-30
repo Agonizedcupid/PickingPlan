@@ -5,6 +5,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,9 +16,14 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aariyan.pickingplan.Adapter.RefAdapter;
+import com.aariyan.pickingplan.Interface.RefInterface;
+import com.aariyan.pickingplan.Model.RefModel;
+import com.aariyan.pickingplan.Networking.NetworkingFeedback;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.CaptureManager;
@@ -25,12 +32,17 @@ import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanIntentResult;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.util.List;
+
 public class BarcodeActivity extends AppCompatActivity {
 
     private Button tapToScan, getPlan, continueWithMyPlay;
     private TextView scannedCode;
     private ConstraintLayout snackBarLayout;
 
+    private RecyclerView recyclerView;
+
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +66,14 @@ public class BarcodeActivity extends AppCompatActivity {
         scannedCode = findViewById(R.id.scannedCode);
         getPlan = findViewById(R.id.getPlan);
         continueWithMyPlay = findViewById(R.id.continueWithMyPLan);
+
+        progressBar = findViewById(R.id.pBar);
+
+        recyclerView = findViewById(R.id.refRecyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        loadReference();
+
         tapToScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,6 +130,27 @@ public class BarcodeActivity extends AppCompatActivity {
 
                 alertDialog.show();
 
+            }
+        });
+    }
+
+    private void loadReference() {
+        int id = getIntent().getIntExtra("userId", 1);
+        progressBar.setVisibility(View.VISIBLE);
+        NetworkingFeedback networkingFeedback = new NetworkingFeedback(BarcodeActivity.this,BarcodeActivity.this);
+        networkingFeedback.getReferenceFromServer(id, new RefInterface() {
+            @Override
+            public void onSuccess(List<RefModel> list) {
+                RefAdapter refAdapter = new RefAdapter(BarcodeActivity.this, list);
+                recyclerView.setAdapter(refAdapter);
+                refAdapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError(String message) {
+                Toast.makeText(BarcodeActivity.this, ""+message, Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
