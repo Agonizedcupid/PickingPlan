@@ -5,6 +5,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -85,14 +87,24 @@ public class UploadActivity extends AppCompatActivity {
         });
     }
 
-    private void postDataOnServer() {
-        if (listOfPostData.size() > 0) {
-            NetworkingFeedback networkingFeedback =
-                    new NetworkingFeedback(UploadActivity.this, UploadActivity.this);
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+    }
 
-            networkingFeedback.postDataOnServer(listOfPostData, snackBarLayout, userID);
+    private void postDataOnServer() {
+        if (isNetworkConnected()) {
+            if (listOfPostData.size() > 0) {
+                NetworkingFeedback networkingFeedback =
+                        new NetworkingFeedback(UploadActivity.this, UploadActivity.this);
+
+                networkingFeedback.postDataOnServer(listOfPostData, snackBarLayout, userID);
+            } else {
+                Snackbar.make(snackBarLayout, "Not enough data!", Snackbar.LENGTH_SHORT).show();
+            }
         } else {
-            Snackbar.make(snackBarLayout, "Not enough data!", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(snackBarLayout, "No Internet Connection!", Snackbar.LENGTH_SHORT).show();
         }
+
     }
 }

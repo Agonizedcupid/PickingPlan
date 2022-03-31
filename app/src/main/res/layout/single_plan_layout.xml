@@ -192,8 +192,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             android:text="20"
-            android:paddingStart="15dp"
-            android:paddingEnd="15dp"
             android:background="@drawable/edit_text_background"
             android:textAlignment="center"
             android:textColor="@android:color/black"

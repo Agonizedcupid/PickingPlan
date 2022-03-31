@@ -36,10 +36,11 @@ public class Filter {
                     public boolean test(PlanModel planModel) throws Throwable {
                         if (flag == 1) {
                             //Remaining
-                            return planModel.getToLoad().equals("0") || TextUtils.isEmpty(planModel.getToLoad());
+                            return planModel.getToLoad().equals("0");
                         } else {
                             //Loaded
-                            return Integer.parseInt(planModel.getToLoad()) > 0;
+                            //return Integer.parseInt(planModel.getToLoad()) > 0;
+                            return !planModel.getToLoad().equals("0");
                         }
                     }
                 });
