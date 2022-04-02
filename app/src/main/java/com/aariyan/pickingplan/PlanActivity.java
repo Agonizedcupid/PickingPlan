@@ -59,6 +59,7 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
     private Button submitBtn;
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private Button extrasBtn;
 
 
     @Override
@@ -140,6 +141,14 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
 //                loadFilteredData();
 //            }
 //        });
+
+        extrasBtn = findViewById(R.id.showRemainingBtn);
+        extrasBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(PlanActivity.this,ExtrasActivity.class));
+            }
+        });
 
         submitBtn = findViewById(R.id.submitBtn);
         submitBtn.setOnClickListener(new View.OnClickListener() {
