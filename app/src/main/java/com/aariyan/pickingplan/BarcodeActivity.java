@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aariyan.pickingplan.Adapter.RefAdapter;
+import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Interface.RefInterface;
 import com.aariyan.pickingplan.Model.RefModel;
 import com.aariyan.pickingplan.Networking.NetworkingFeedback;
@@ -44,10 +45,20 @@ public class BarcodeActivity extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
+    public static String name = "";
+    public static int userId = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode);
+
+        if (getIntent() != null) {
+            name = getIntent().getStringExtra("name");
+            userId = getIntent().getIntExtra("userId", 0);
+            Constant.userName = name;
+            Constant.usrId = userId;
+        }
 
         initUI(savedInstanceState);
     }

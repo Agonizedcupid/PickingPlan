@@ -146,7 +146,8 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
         extrasBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(PlanActivity.this,ExtrasActivity.class));
+                startActivity(new Intent(PlanActivity.this, ExtrasActivity.class)
+                        .putExtra("code", qrCode));
             }
         });
 
@@ -156,7 +157,7 @@ public class PlanActivity extends AppCompatActivity implements ToLoadClick {
             public void onClick(View view) {
                 startActivity(new Intent(PlanActivity.this, UploadActivity.class)
                         .putExtra("code", qrCode)
-                        .putExtra("code", qrCode)
+                        //.putExtra("code", qrCode)
                         .putExtra("userId", getIntent().getIntExtra("userId", 1))
                 );
             }

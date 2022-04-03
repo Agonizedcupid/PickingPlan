@@ -2,6 +2,7 @@ package com.aariyan.pickingplan;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -10,21 +11,32 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.aariyan.pickingplan.Constant.Constant;
+import com.aariyan.pickingplan.Interface.RestApis;
+import com.aariyan.pickingplan.Networking.ApiClient;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import okhttp3.ResponseBody;
 
 public class ExtrasActivity extends AppCompatActivity {
 
-    private EditText checkerName,dunnages,straps,pallets,plasticComeres,tarps,stans,trail,belts,nets;
-    private RadioButton completeYes, completeNo,secureYes, secureNo;
+    private EditText checkerName, dunnages, straps, pallets, plasticComeres, tarps, stans, trail, belts, nets;
+    private RadioButton completeYes, completeNo, secureYes, secureNo;
     private String complete = "", secure = "";
     private Button saveBtn;
 
     CompositeDisposable compositeDisposable = new CompositeDisposable();
 
+    RestApis apis;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_extras);
+        apis = ApiClient.getClient().create(RestApis.class);
 
         initUI();
     }
@@ -41,7 +53,7 @@ public class ExtrasActivity extends AppCompatActivity {
         belts = findViewById(R.id.belts);
         nets = findViewById(R.id.nets);
 
-        secureYes  = findViewById(R.id.yesSecureBtn);
+        secureYes = findViewById(R.id.yesSecureBtn);
         secureNo = findViewById(R.id.noSecureBtn);
 
         completeYes = findViewById(R.id.yesCompleteBtn);
@@ -164,7 +176,26 @@ public class ExtrasActivity extends AppCompatActivity {
         }
 
         // Do the API staff:
-
+        compositeDisposable.add(apis.postExtras("" + checkerName.getText().toString(), "" + dunnages.getText().toString(),
+                "" + pallets.getText().toString(), "" + straps.getText().toString(), "" + plasticComeres.getText().toString(),
+                "" + tarps.getText().toString(), "" + stans.getText().toString(), "" + trail.getText().toString(),
+                "" + belts.getText().toString(), "" + nets.getText().toString(), "" + complete, "" + secure,
+                "" + getIntent().getStringExtra("code"), "" + Constant.usrId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ResponseBody>() {
+                    @Override
+                    public void accept(ResponseBody responseBody) throws Throwable {
+                        Toast.makeText(ExtrasActivity.this, "Successful!", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(ExtrasActivity.this, BarcodeActivity.class));
+                        finish();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Throwable {
+                        Toast.makeText(ExtrasActivity.this, "Failed: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }));
 
     }
 

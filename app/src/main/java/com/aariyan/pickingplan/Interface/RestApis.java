@@ -1,6 +1,7 @@
 package com.aariyan.pickingplan.Interface;
 
 import io.reactivex.rxjava3.core.Observable;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -31,4 +32,13 @@ public interface RestApis {
 
     @GET("GetPickingHeaders.php?")
     Observable<ResponseBody> getReference(@Query("userid") int userId);
+
+    @FormUrlEncoded
+    @POST("PostExtras.php")
+    Observable<ResponseBody> postExtras(@Field("strCheckerName") String checkerName, @Field("intDunnages") String dunnages,
+                                        @Field("intPallets") String pallets, @Field("intStraps") String intStraps,
+                                        @Field("intPlasticCorners") String plasticCorners, @Field("intTarps") String tarps,
+                                        @Field("intStans") String stans, @Field("strTrailorNo") String trailNo,
+                                        @Field("intBelts") String belts, @Field("intNets") String nets, @Field("strLoadComplete") String loadComplete,
+                                        @Field("strLoadSecured") String loadSecured, @Field("reference") String reference, @Field("userId") String userId);
 }
