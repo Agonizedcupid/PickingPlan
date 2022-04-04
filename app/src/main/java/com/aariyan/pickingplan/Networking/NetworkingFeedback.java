@@ -103,6 +103,8 @@ public class NetworkingFeedback {
                         @Override
                         public void accept(ResponseBody responseBody) throws Throwable {
                             JSONArray root = new JSONArray(responseBody.string());
+//                            Log.d("RESPONSES", responseBody.string());
+//                            Log.d("RESPONSES",root.toString());
                             if (root.length() > 0) {
                                 listOfRef.clear();
                                 for (int i = 0; i < root.length(); i++) {
@@ -308,6 +310,7 @@ public class NetworkingFeedback {
                         @Override
                         public void accept(ResponseBody responseBody) throws Throwable {
                             JSONArray root = new JSONArray(responseBody.string());
+                            Log.d("RESPONSE", responseBody.string());
                             listOfPlans.clear();
                             for (int i = 0; i < root.length(); i++) {
                                 JSONObject single = root.getJSONObject(i);

@@ -1,10 +1,12 @@
 package com.aariyan.pickingplan;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,9 +16,19 @@ import android.widget.Toast;
 import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Interface.RestApis;
 import com.aariyan.pickingplan.Networking.ApiClient;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -35,12 +47,14 @@ public class ExtrasActivity extends AppCompatActivity {
 
     RestApis apis;
 
+    private RequestQueue requestQueue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_extras);
         apis = ApiClient.getClient().create(RestApis.class);
-
+        requestQueue = Volley.newRequestQueue(this);
         initUI();
     }
 
@@ -179,30 +193,79 @@ public class ExtrasActivity extends AppCompatActivity {
         }
 
         // Do the API staff:
-        compositeDisposable.add(apis.postExtras("" + checkerName.getText().toString(), "" + dunnages.getText().toString(),
-                "" + pallets.getText().toString(), "" + straps.getText().toString(), "" + plasticComeres.getText().toString(),
-                "" + tarps.getText().toString(), "" + stans.getText().toString(), "" + trail.getText().toString(),
-                "" + belts.getText().toString(), "" + nets.getText().toString(), "" + complete, "" + secure,
-                "" + getIntent().getStringExtra("code"), "" + Constant.usrId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<ResponseBody>() {
-                    @Override
-                    public void accept(ResponseBody responseBody) throws Throwable {
-                        JSONArray root = new JSONArray(responseBody.string());
-                        JSONObject ob = root.getJSONObject(0);
-                        String result = ob.getString("result");
-                        Toast.makeText(ExtrasActivity.this, ""+result, Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(ExtrasActivity.this, BarcodeActivity.class)
-                        .putExtra("userId", Constant.usrId));
-                        finish();
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Throwable {
-                        Toast.makeText(ExtrasActivity.this, "Failed: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }));
+//        compositeDisposable.add(apis.postExtras("" + checkerName.getText().toString(), Integer.parseInt(dunnages.getText().toString()),
+//                Integer.parseInt(pallets.getText().toString()), Integer.parseInt(straps.getText().toString()),
+//                Integer.parseInt(plasticComeres.getText().toString()),
+//                Integer.parseInt(tarps.getText().toString()),
+//                Integer.parseInt(stans.getText().toString()),
+//                "" + trail.getText().toString(),
+//                Integer.parseInt(belts.getText().toString()),
+//                Integer.parseInt(nets.getText().toString()), "" + complete, "" + secure,
+//                //"" + getIntent().getStringExtra("code"),
+//                "1632087778dehfV-l-Za",
+//                Constant.usrId)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Consumer<ResponseBody>() {
+//                    @Override
+//                    public void accept(ResponseBody responseBody) throws Throwable {
+//                        JSONArray root = new JSONArray(responseBody.string());
+////                        for (int i=0; i<root.length(); i++) {
+////                            JSONObject ob = root.getJSONObject(i);
+////                            String result = ob.getString("result");
+////                            Log.d("RESPONSE", responseBody.string());
+////                        }
+//                        Log.d("RESPONSE", root.toString());
+//                        Log.d("RESPONSE", responseBody.string());
+//                        Toast.makeText(ExtrasActivity.this, ""+root, Toast.LENGTH_SHORT).show();
+//                        startActivity(new Intent(ExtrasActivity.this, BarcodeActivity.class)
+//                        .putExtra("userId", Constant.usrId));
+//                        finish();
+//                    }
+//                }, new Consumer<Throwable>() {
+//                    @Override
+//                    public void accept(Throwable throwable) throws Throwable {
+//                        Log.d("RESPONSE", throwable.getMessage());
+//                        Toast.makeText(ExtrasActivity.this, "Failed: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                }));
+
+        String URL = Constant.BASE_URL + "PostExtras.php";
+
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.POST, URL, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                Log.d("TAG", "onResponse: "+response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("TAG", "onErrorResponse: "+error.getMessage());
+            }
+        }) {
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<>();
+                map.put("strCheckerName","strCheckerName");
+                map.put("intDunnages","5");
+                map.put("intPallets","1");
+                map.put("intStraps","2");
+                map.put("intPlasticCorners","5");
+                map.put("intTarps","1");
+                map.put("intStans","4");
+                map.put("strTrailorNo","6");
+                map.put("intBelts","11");
+                map.put("intNets","5");
+                map.put("strLoadComplete","NO");
+                map.put("strLoadSecured","YES");
+                map.put("reference","1632087778dehfV-l-Za");
+                map.put("userId","0");
+                return map;
+            }
+        };
+
+        requestQueue.add(arrayRequest);
 
     }
 
