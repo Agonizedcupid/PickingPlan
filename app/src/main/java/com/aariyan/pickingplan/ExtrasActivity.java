@@ -15,6 +15,9 @@ import com.aariyan.pickingplan.Constant.Constant;
 import com.aariyan.pickingplan.Interface.RestApis;
 import com.aariyan.pickingplan.Networking.ApiClient;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.functions.Consumer;
@@ -186,8 +189,12 @@ public class ExtrasActivity extends AppCompatActivity {
                 .subscribe(new Consumer<ResponseBody>() {
                     @Override
                     public void accept(ResponseBody responseBody) throws Throwable {
-                        Toast.makeText(ExtrasActivity.this, "Successful!", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(ExtrasActivity.this, BarcodeActivity.class));
+                        JSONArray root = new JSONArray(responseBody.string());
+                        JSONObject ob = root.getJSONObject(0);
+                        String result = ob.getString("result");
+                        Toast.makeText(ExtrasActivity.this, ""+result, Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(ExtrasActivity.this, BarcodeActivity.class)
+                        .putExtra("userId", Constant.usrId));
                         finish();
                     }
                 }, new Consumer<Throwable>() {
