@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -189,6 +190,7 @@ public class ExtrasActivity extends AppCompatActivity {
                 .subscribe(new Consumer<ResponseBody>() {
                     @Override
                     public void accept(ResponseBody responseBody) throws Throwable {
+                        Log.e("TAG", "accept: "+responseBody.string() );
                         JSONArray root = new JSONArray(responseBody.string());
                         JSONObject ob = root.getJSONObject(0);
                         String result = ob.getString("result");
