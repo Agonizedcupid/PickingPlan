@@ -33,12 +33,21 @@ public interface RestApis {
     @GET("GetPickingHeaders.php?")
     Observable<ResponseBody> getReference(@Query("userid") int userId);
 
+//    @FormUrlEncoded
+//    @POST("PostExtras.php")
+//    Observable<ResponseBody> postExtras(@Field("strCheckerName") String checkerName, @Field("intDunnages") String dunnages,
+//                                        @Field("intPallets") String pallets, @Field("intStraps") String intStraps,
+//                                        @Field("intPlasticCorners") String plasticCorners, @Field("intTarps") String tarps,
+//                                        @Field("intStans") String stans, @Field("strTrailorNo") String trailNo,
+//                                        @Field("intBelts") String belts, @Field("intNets") String nets, @Field("strLoadComplete") String loadComplete,
+//                                        @Field("strLoadSecured") String loadSecured, @Field("reference") String reference, @Field("userId") String userId);
+
     @FormUrlEncoded
     @POST("PostExtras.php")
-    Observable<ResponseBody> postExtras(@Field("strCheckerName") String checkerName, @Field("intDunnages") String dunnages,
-                                        @Field("intPallets") String pallets, @Field("intStraps") String intStraps,
-                                        @Field("intPlasticCorners") String plasticCorners, @Field("intTarps") String tarps,
-                                        @Field("intStans") String stans, @Field("strTrailorNo") String trailNo,
-                                        @Field("intBelts") String belts, @Field("intNets") String nets, @Field("strLoadComplete") String loadComplete,
-                                        @Field("strLoadSecured") String loadSecured, @Field("reference") String reference, @Field("userId") String userId);
+    Observable<ResponseBody> postExtras(@Field("strCheckerName") String checkerName, @Field("intDunnages") int dunnages,
+                                        @Field("intPallets") int pallets, @Field("intStraps") int intStraps,
+                                        @Field("intPlasticCorners") int plasticCorners, @Field("intTarps") int tarps,
+                                        @Field("intStans") int stans, @Field("strTrailorNo") String trailNo,
+                                        @Field("intBelts") int belts, @Field("intNets") int nets, @Field("strLoadComplete") String loadComplete,
+                                        @Field("strLoadSecured") String loadSecured, @Field("reference") String reference, @Field("userId") int userId);
 }
