@@ -284,20 +284,20 @@ public class ExtrasActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<>();
-                map.put("strCheckerName","strCheckerName");
-                map.put("intDunnages","5");
-                map.put("intPallets","1");
-                map.put("intStraps","2");
-                map.put("intPlasticCorners","5");
-                map.put("intTarps","1");
-                map.put("intStans","4");
-                map.put("strTrailorNo","6");
-                map.put("intBelts","11");
-                map.put("intNets","5");
-                map.put("strLoadComplete","NO");
-                map.put("strLoadSecured","YES");
-                map.put("reference","1632087778dehfV-l-Za");
-                map.put("userId","0");
+                map.put("strCheckerName",""+checkerName.getText().toString());
+                map.put("intDunnages",""+dunnages.getText().toString());
+                map.put("intPallets",""+pallets.getText().toString());
+                map.put("intStraps",""+straps.getText().toString());
+                map.put("intPlasticCorners",""+ plasticComeres.getText().toString());
+                map.put("intTarps",""+ tarps.getText().toString());
+                map.put("intStans",""+stans.getText().toString());
+                map.put("strTrailorNo",""+trail.getText().toString());
+                map.put("intBelts",""+ belts.getText().toString());
+                map.put("intNets","" + nets.getText().toString());
+                map.put("strLoadComplete",""+ complete);
+                map.put("strLoadSecured",""+ secure);
+                map.put("reference",""+ getIntent().getStringExtra("code"));
+                map.put("userId",""+ Constant.usrId);
                 return map;
             }
         };
