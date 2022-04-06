@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
@@ -50,6 +51,8 @@ public class ExtrasActivity extends AppCompatActivity {
 
     private RequestQueue requestQueue;
 
+    private ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +80,8 @@ public class ExtrasActivity extends AppCompatActivity {
         completeYes = findViewById(R.id.yesCompleteBtn);
         completeNo = findViewById(R.id.noCompleteBtn);
         saveBtn = findViewById(R.id.saveBtn);
+
+        progressBar = findViewById(R.id.pBar);
 
         completeYes.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,6 +198,9 @@ public class ExtrasActivity extends AppCompatActivity {
             return;
         }
 
+        saveBtn.setEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
+
         // Do the API staff:
 //        compositeDisposable.add(apis.postExtras("" + checkerName.getText().toString(), "" + dunnages.getText().toString(),
 //                "" + pallets.getText().toString(), "" + straps.getText().toString(), "" + plasticComeres.getText().toString(),
@@ -263,21 +271,29 @@ public class ExtrasActivity extends AppCompatActivity {
             @Override
             public void onResponse(String response) {
                 try {
+                    Log.d("TAG", "onResponse: "+response.toString());
                     JSONArray root = new JSONArray(response);
                     JSONObject single = root.getJSONObject(0);
                     String result = single.getString("result");
                     Toast.makeText(ExtrasActivity.this, "" + result, Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(ExtrasActivity.this, BarcodeActivity.class)
                             .putExtra("userId", Constant.usrId));
+                    saveBtn.setEnabled(true);
+                    progressBar.setVisibility(View.GONE);
                     finish();
                 }catch (Exception e) {
-
+                    Toast.makeText(ExtrasActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    saveBtn.setEnabled(true);
+                    progressBar.setVisibility(View.GONE);
                 }
             }
         }, new Response.ErrorListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("TAG", "onErrorResponse: "+error.getMessage());
+            public void onErrorResponse(VolleyError e) {
+                saveBtn.setEnabled(true);
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(ExtrasActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d("TAG", "onErrorResponse: "+e.getMessage());
             }
         }) {
             @Nullable
